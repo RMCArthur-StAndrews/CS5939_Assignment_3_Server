@@ -1,5 +1,5 @@
 # Stage 1: Build the Node.js application
-FROM node:16 AS build
+FROM node:20 AS build
 
 LABEL authors="RRHMc"
 
