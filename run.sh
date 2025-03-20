@@ -1,20 +1,41 @@
 #!/bin/bash
 
-# Build the Docker image
-docker build -t myapp:latest .
+# Navigate to the View directory and build the Docker image for the Webapp
+cd View
+docker build -t webapp:latest -f Dockerfile .
 
-# Check if the build was successful
+# Check if the Webapp build was successful
 if [ $? -eq 0 ]; then
-  echo "Docker image built successfully."
+  echo "Webapp Docker image built successfully."
+  cd ..
 
-  # Run the Docker container
-  docker run -d -p 3000:3000 --name myapp_container myapp:latest
+  # Build the Docker image for the API
+  docker build -t api:latest -f Dockerfile .
 
+  # Check if the API build was successful
   if [ $? -eq 0 ]; then
-    echo "Docker container started successfully."
+    echo "API Docker image built successfully."
+
+    # Run the Webapp Docker container
+    docker run -d -p 3000:3000 --name webapp_container webapp:latest
+
+    if [ $? -eq 0 ]; then
+      echo "Webapp Docker container started successfully."
+
+      # Run the API Docker container
+      docker run -d -p 5000:5000 --name api_container api:latest
+
+      if [ $? -eq 0 ]; then
+        echo "API Docker container started successfully."
+      else
+        echo "Failed to start API Docker container."
+      fi
+    else
+      echo "Failed to start Webapp Docker container."
+    fi
   else
-    echo "Failed to start Docker container."
+    echo "Failed to build API Docker image."
   fi
 else
-  echo "Failed to build Docker image."
+  echo "Failed to build Webapp Docker image."
 fi
