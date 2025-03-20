@@ -6,10 +6,8 @@ LABEL authors="RRHMc"
 # Set the working directory
 WORKDIR /usr/src/app
 
-
-
 # Copy package.json and package-lock.json from the View directory
-COPY package.json package-lock.json
+COPY package.json package-lock.json ./
 
 RUN npm cache clean --force
 
