@@ -7,7 +7,7 @@ LABEL authors=\"RRHMc\"
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json from the View directory
-COPY /View/package*.json ./
+COPY ./View/package*.json ./
 
 RUN npm cache clean --force
 
@@ -15,7 +15,7 @@ RUN npm cache clean --force
 RUN npm install --legacy-peer-deps
 
 # Copy the rest of the application code from the View directory
-COPY CS5939_Assignment_3_Server/View/ ./
+COPY ./View/ ./
 
 # Install TypeScript and other dependencies
 RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom
