@@ -6,6 +6,8 @@ LABEL authors="RRHMc"
 # Set the working directory
 WORKDIR /usr/src/app
 
+RUN npm install -g npm@11.2.0
+
 # Copy package.json and package-lock.json from the View directory
 COPY package.json package-lock.json
 
