@@ -6,20 +6,20 @@ LABEL authors="RRHMc"
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json from the View directory
-COPY View/package*.json ./
+# Copy package.json and package-lock.json from the root directory
+COPY package*.json ./
 
 RUN npm cache clean --force
 
 # Install Node.js dependencies with the --legacy-peer-deps flag
 RUN npm install --legacy-peer-deps
 
-# Copy the rest of the application code from the View directory
-COPY View/ ./
+# Copy the rest of the application code from the root directory
+COPY . ./
 
 # Install TypeScript and other dependencies
-RUN npm install --save-dev typescript @types/node @types/react @types/react-dom
-RUN npm install react react-dom
+RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom
+RUN npm install --legacy-peer-deps react react-dom
 
 # Build the application
 RUN npm run build
