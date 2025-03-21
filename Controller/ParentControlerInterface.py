@@ -9,8 +9,10 @@ from Controller.CloudDataMonitoringInterface import CloudDataMonitoringInterface
 from Controller.EdgeMonitoringInterface import EdgeMonitoringInterface
 from Controller.StreamHandlingInterface import StreamHandlingInterface
 from Controller.GeneralUtilsInterface import GeneralUtilsInterface
+from flask_cors import CORS
 cloud_monitor = CloudMonitoringUtils()
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 api = Api(app)
 @app.before_request
 def before_request():
