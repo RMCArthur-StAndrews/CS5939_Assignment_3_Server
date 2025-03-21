@@ -10,6 +10,10 @@ RUN apt-get update --yes && \
     locale-gen && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Node.js and npm
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install --yes nodejs
+
 ENV PATH="/root/.local/bin:${PATH}"
 
 # Set the working directory
