@@ -1,22 +1,20 @@
 # Stage 1: Build the Python environment
-FROM python:3.9-alpine AS build
+FROM python:3.9-slim-bullseye AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages
-RUN apk update && \
-    apk add --no-cache \
-    bash \
-    build-base \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
     cmake \
     git \
-    g++ \
     libffi-dev \
-    musl-dev \
-    openssl-dev \
+    libssl-dev \
     python3-dev \
     tzdata && \
-    rm -rf /var/cache/apk/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -36,16 +34,17 @@ RUN cd pytorch && \
     python setup.py install
 
 # Stage 2: Create the final image
-FROM python:3.9-alpine
+FROM python:3.9-slim-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.local/bin:/usr/src/app/venv/bin:${PATH}"
 
 # Install necessary packages
-RUN apk update && \
-    apk add --no-cache \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     tzdata && \
-    rm -rf /var/cache/apk/*
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
