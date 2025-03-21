@@ -1,12 +1,16 @@
-// src/components/VisualisedMetrics.tsx
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import Plotly from 'plotly.js-dist';
 
 interface CloudMetric {
-  timestamp: string;
-  metric_name: string;
-  value: number;
-  unit: string;
+  time_of_occurence: string;
+  execution_hash: string;
+  data: string;
+  execution_time: number;
+  memory_usage: number;
+  processing_info: {
+    peak_memory_usage: number;
+  };
 }
 
 interface GroupedData {
@@ -18,61 +22,76 @@ interface GroupedData {
   };
 }
 
-const sampleCloudMetrics: CloudMetric[] = [
-  {
-    timestamp: '2023-10-01T12:00:00Z',
-    metric_name: 'CPU Usage',
-    value: 75.5,
-    unit: '%'
-  },
-  {
-    timestamp: '2023-10-01T12:05:00Z',
-    metric_name: 'Memory Usage',
-    value: 60.2,
-    unit: 'MB'
-  },
-  {
-    timestamp: '2023-10-01T12:10:00Z',
-    metric_name: 'Disk I/O',
-    value: 120.4,
-    unit: 'MB/s'
-  },
-  {
-    timestamp: '2023-10-01T12:15:00Z',
-    metric_name: 'Network Throughput',
-    value: 300.1,
-    unit: 'Mbps'
-  },
-  {
-    timestamp: '2023-10-01T12:20:00Z',
-    metric_name: 'CPU Usage',
-    value: 80.3,
-    unit: '%'
-  }
-];
-
 const VisualisedMetrics: React.FC = () => {
-  const [metrics, setMetrics] = useState<CloudMetric[]>(sampleCloudMetrics);
+  const [metrics, setMetrics] = useState<CloudMetric[]>([]);
+  const [selectedGraph, setSelectedGraph] = useState<string>('memory');
+
+  useEffect(() => {
+    axios.get('http://127.0.0.1:5000/cloud-data-monitoring')
+      .then(response => {
+        console.log('Fetched data:', response.data); // Debugging log
+        let parsedData;
+        try {
+          parsedData = JSON.parse(response.data);
+        } catch (error) {
+          console.error('Error parsing data:', error);
+          return;
+        }
+        if (Array.isArray(parsedData)) {
+          setMetrics(parsedData);
+        } else {
+          console.error('Parsed data is not an array:', parsedData);
+          console.log('Type of parsed data:', typeof parsedData);
+          console.log('Keys of parsed data:', Object.keys(parsedData));
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
 
   useEffect(() => {
     if (metrics.length > 0) {
-      const groupedData = metrics.reduce<GroupedData>((acc, metric) => {
-        if (!acc[metric.metric_name]) {
-          acc[metric.metric_name] = { x: [], y: [], type: 'scatter', name: metric.metric_name };
-        }
-        acc[metric.metric_name].x.push(metric.timestamp);
-        acc[metric.metric_name].y.push(metric.value);
-        return acc;
-      }, {});
-
-      const data = Object.values(groupedData);
+      let data;
+      if (selectedGraph === 'memory') {
+        const groupedData = metrics.reduce<GroupedData>((acc, metric) => {
+          const date = metric.time_of_occurence.split(' ')[0];
+          if (!acc[date]) {
+            acc[date] = { x: [], y: [], type: 'bar', name: date };
+          }
+          acc[date].x.push(metric.time_of_occurence);
+          acc[date].y.push(metric.memory_usage);
+          return acc;
+        }, {});
+        data = Object.values(groupedData);
+      } else if (selectedGraph === 'task') {
+        const groupedData = metrics.reduce<GroupedData>((acc, metric) => {
+          const date = metric.time_of_occurence.split(' ')[0];
+          if (!acc[date]) {
+            acc[date] = { x: [], y: [], type: 'bar', name: date };
+          }
+          const taskIndex = acc[date].x.indexOf(metric.data);
+          if (taskIndex === -1) {
+            acc[date].x.push(metric.data);
+            acc[date].y.push(1);
+          } else {
+            acc[date].y[taskIndex] += 1;
+          }
+          return acc;
+        }, {});
+        data = Object.values(groupedData);
+      }
       Plotly.newPlot('plotlyGraph', data);
     }
-  }, [metrics]);
+  }, [metrics, selectedGraph]);
 
   return (
     <div>
       <h2>Visualised Metrics</h2>
+      <select onChange={(e) => setSelectedGraph(e.target.value)} value={selectedGraph}>
+        <option value="memory">Memory Consumption</option>
+        <option value="task">Task Count</option>
+      </select>
       <div id="plotlyGraph"></div>
     </div>
   );
