@@ -1,19 +1,21 @@
 # Stage 1: Build the Python environment
-FROM python:3.9-slim AS build
+FROM python:3.9-alpine AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
+RUN apk update && \
+    apk add --no-cache \
+    bash \
+    build-base \
     gcc \
+    g++ \
     libffi-dev \
-    libssl-dev \
+    musl-dev \
+    openssl-dev \
     python3-dev \
     tzdata && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apk/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -25,21 +27,22 @@ COPY requirements.txt ./
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
     pip install --upgrade pip && \
+    pip install --no-cache-dir numpy==1.21.0 && \
+    pip install --no-cache-dir torch-1.8.0-cp39-cp39-linux_x86_64.whl && \
     pip install --no-cache-dir -r requirements.txt && \
     rm -rf ~/.cache/pip
 
 # Stage 2: Create the final image
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.local/bin:/usr/src/app/venv/bin:${PATH}"
 
 # Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN apk update && \
+    apk add --no-cache \
     tzdata && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/cache/apk/*
 
 # Set the working directory
 WORKDIR /usr/src/app
