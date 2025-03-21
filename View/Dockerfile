@@ -6,17 +6,17 @@ LABEL authors="RRHMc"
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json from the View directory
-COPY package.json package-lock.json
+# Copy package.json and package-lock.json from the current directory
+COPY package.json package-lock.json ./
 
 RUN npm cache clean --force
 
 RUN npm install -g npm@11.2.0
 
 # Install Node.js dependencies with the --legacy-peer-deps flag
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copy the rest of the application code from the View directory
+# Copy the rest of the application code from the current directory
 COPY . .
 
 # Install TypeScript and other dependencies
