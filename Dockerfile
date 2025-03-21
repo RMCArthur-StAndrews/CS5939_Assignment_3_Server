@@ -1,14 +1,21 @@
 # Stage 1: Build the Python environment
-FROM python:3.9-slim AS build
+FROM python:3.9-alpine AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages
-RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends locales tzdata build-essential wget zip unzip curl git ca-certificates software-properties-common cmake pkg-config vim htop && \
-    echo "en_GB.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && \
+    apk add --no-cache \
+    bash \
+    build-base \
+    gcc \
+    g++ \
+    libffi-dev \
+    musl-dev \
+    openssl-dev \
+    python3-dev \
+    tzdata && \
+    rm -rf /var/cache/apk/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -24,17 +31,16 @@ RUN python3 -m venv venv && \
     rm -rf ~/.cache/pip
 
 # Stage 2: Create the final image
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.local/bin:/usr/src/app/venv/bin:${PATH}"
 
 # Install necessary packages
-RUN apt-get update --yes && \
-    apt-get install --yes --no-install-recommends locales tzdata && \
-    echo "en_GB.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && \
+    apk add --no-cache \
+    tzdata && \
+    rm -rf /var/cache/apk/*
 
 # Set the working directory
 WORKDIR /usr/src/app

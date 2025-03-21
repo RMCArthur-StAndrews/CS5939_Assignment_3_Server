@@ -9,9 +9,9 @@ WORKDIR /usr/src/app
 # Copy package.json and package-lock.json from the current directory
 COPY package.json package-lock.json ./
 
-RUN npm cache clean --force
-
-RUN npm install -g npm@11.2.0
+# Clean npm cache and install npm globally
+RUN npm cache clean --force && \
+    npm install -g npm@11.2.0
 
 # Install Node.js dependencies with the --legacy-peer-deps flag
 RUN npm install --legacy-peer-deps
@@ -23,8 +23,25 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY . .
 
 # Install TypeScript and other dependencies
-RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom
-RUN npm install --legacy-peer-deps react react-dom
+RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom && \
+    npm install --legacy-peer-deps react react-dom
 
 # Build the application
 RUN npm run build
+
+# Stage 2: Create the final image
+FROM node:20-slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the build artifacts from the build stage
+COPY --from=build /usr/src/app/build ./build
+COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/node_modules ./node_modules
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Command to run the application
+CMD ["npm", "start"]
