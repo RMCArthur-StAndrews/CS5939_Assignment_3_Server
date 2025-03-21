@@ -4,5 +4,6 @@ flask-restful
 flask
 opencv-python
 numpy
+torch>=1.8.0
 ultralytics
 requests
