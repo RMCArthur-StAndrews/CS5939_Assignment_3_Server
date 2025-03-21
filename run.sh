@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Remove existing containers
+docker rm -f webapp_container api_container
+
+# Remove existing images
+docker rmi -f webapp:latest api:latest
+
 # Navigate to the View directory and build the Docker image for the Webapp
 cd View
 docker build -t webapp:latest -f Dockerfile .
