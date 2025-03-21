@@ -15,12 +15,18 @@ if [ $? -eq 0 ]; then
   echo "Webapp Docker image built successfully."
   cd ..
 
+  # Cleanup old Docker images after building the Webapp
+  ./clean.sh
+
   # Build the Docker image for the API
   docker build -t api:latest -f Dockerfile .
 
   # Check if the API build was successful
   if [ $? -eq 0 ]; then
     echo "API Docker image built successfully."
+
+    # Cleanup old Docker images after building the API
+    ./clean.sh
 
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 --name webapp_container webapp:latest
