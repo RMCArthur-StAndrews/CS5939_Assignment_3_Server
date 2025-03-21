@@ -16,6 +16,9 @@ RUN npm install -g npm@11.2.0
 # Install Node.js dependencies with the --legacy-peer-deps flag
 RUN npm install --legacy-peer-deps
 
+# Set the NODE_OPTIONS environment variable to use legacy OpenSSL providers
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 # Copy the rest of the application code from the current directory
 COPY . .
 
