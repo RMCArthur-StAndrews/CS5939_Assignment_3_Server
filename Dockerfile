@@ -20,6 +20,9 @@ ENV PATH="/root/.local/bin:${PATH}"
 # Set the working directory
 WORKDIR /usr/src/app
 
+# Clear the current folder
+RUN rm -rf /usr/src/app/*
+
 # Copy the Python requirements file
 COPY requirements.txt ./
 
