@@ -1,5 +1,5 @@
-# Stage 1: Build the Python environment
-FROM python:3.9-slim-bullseye AS build
+# Use a slim Python image
+FROM python:3.9-slim-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -19,38 +19,15 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Clone the PyTorch repository
-RUN git clone --recursive https://github.com/pytorch/pytorch && \
-    cd pytorch && \
-    git submodule sync && \
-    git submodule update --init --recursive
-
-# Build and install PyTorch
-RUN cd pytorch && \
-    python3 -m venv venv && \
+# Create a virtual environment and activate it
+RUN python3 -m venv venv && \
     . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install -r requirements.txt && \
-    python setup.py install
+    pip install --upgrade pip
 
-# Stage 2: Create the final image
-FROM python:3.9-slim-bullseye
-
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="/root/.local/bin:/usr/src/app/venv/bin:${PATH}"
-
-# Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    tzdata && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the working directory
-WORKDIR /usr/src/app
-
-# Copy the virtual environment from the build stage
-COPY --from=build /usr/src/app/pytorch/venv ./venv
+# Install PyTorch and other dependencies
+COPY requirements.txt .
+RUN . venv/bin/activate && \
+    pip install -r requirements.txt
 
 # Copy the application code
 COPY Controller/ ./Controller/
@@ -60,4 +37,4 @@ COPY Utils/ ./Utils/
 EXPOSE 3000
 
 # Command to run the application
-CMD ["python", "app.py"]
+CMD ["venv/bin/python", "app.py"]
