@@ -1,22 +1,4 @@
-# Stage 1: Build the Node.js application
-FROM node:18 AS build
 
-# Set the working directory
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install Node.js dependencies
-RUN npm install
-
-# Copy the rest of the application code
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Stage 2: Set up the final image
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
