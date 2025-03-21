@@ -12,7 +12,8 @@ RUN apt-get update --yes && \
 
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install --yes nodejs
+    apt-get install --yes nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/root/.local/bin:${PATH}"
 
