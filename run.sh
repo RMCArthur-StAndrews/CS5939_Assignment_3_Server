@@ -25,9 +25,6 @@ if [ $? -eq 0 ]; then
   if [ $? -eq 0 ]; then
     echo "API Docker image built successfully."
 
-    # Cleanup old Docker images after building the API
-    ./clean.sh
-
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 --name webapp_container webapp:latest
 
