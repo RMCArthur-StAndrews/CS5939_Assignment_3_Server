@@ -4,17 +4,15 @@ FROM python:3.9-alpine3.21
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
+RUN apk update && \
+    apk add --no-cache \
+    build-base \
     cmake \
     git \
     libffi-dev \
-    libssl-dev \
+    openssl-dev \
     python3-dev \
-    tzdata && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    tzdata
 
 # Set the working directory
 WORKDIR /usr/src/app
