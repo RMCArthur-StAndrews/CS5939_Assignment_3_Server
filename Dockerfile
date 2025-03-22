@@ -19,6 +19,9 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /usr/src/app
 
+# Copy the requirements.txt file
+COPY requirements.txt .
+
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
