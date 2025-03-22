@@ -23,7 +23,7 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY . .
 
 # Install TypeScript and other dependencies
-RRUN NODE_OPTIONS=--max_old_space_size=4096 npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom && \
+RUN NODE_OPTIONS=--max_old_space_size=4096 npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom && \
     NODE_OPTIONS=--max_old_space_size=4096 npm install --legacy-peer-deps react react-dom react-scripts
 
 # Build the application
