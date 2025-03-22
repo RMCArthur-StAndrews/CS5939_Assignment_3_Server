@@ -1,5 +1,5 @@
-# Use a slim Python image
-FROM python:slim
+# Stage 1: Build stage
+FROM python:slim AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -32,6 +32,23 @@ RUN python3 -m venv venv && \
 # Copy the application code
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
+
+# Clean up unnecessary files
+RUN find /usr/src/app -name '*.pyc' -delete && \
+    find /usr/src/app -name '__pycache__' -delete && \
+    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Stage 2: Final stage
+FROM python:slim
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the virtual environment and application code from the build stage
+COPY --from=build /usr/src/app /usr/src/app
 
 # Expose the port the app runs on
 EXPOSE 3000

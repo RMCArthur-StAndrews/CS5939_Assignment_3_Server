@@ -29,6 +29,14 @@ RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/reac
 # Build the application
 RUN npm run build
 
+# Clean up unnecessary files
+RUN npm prune --production && \
+    rm -rf /usr/src/app/node_modules/.cache && \
+    rm -rf /tmp/* /var/tmp/* && \
+    rm -rf /usr/src/app/node_modules/.bin && \
+    rm -rf /usr/src/app/node_modules/typescript && \
+    rm -rf /usr/src/app/node_modules/@types
+
 # Stage 2: Create the final image
 FROM node:20-slim
 
