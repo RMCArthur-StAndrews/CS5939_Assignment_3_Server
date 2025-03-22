@@ -3,7 +3,7 @@ FROM python:slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages
+# Install necessary packages and clean up
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
@@ -19,15 +19,12 @@ RUN apt-get update && \
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Create a virtual environment and activate it
+# Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
-    pip install --upgrade pip
-
-# Install PyTorch and other dependencies
-COPY requirements.txt .
-RUN . venv/bin/activate && \
-    pip install -r requirements.txt
+    pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    rm -rf ~/.cache/pip
 
 # Copy the application code
 COPY Controller/ ./Controller/
