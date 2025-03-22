@@ -27,7 +27,7 @@ RUN NODE_OPTIONS=--max_old_space_size=4096 npm install --legacy-peer-deps --save
     NODE_OPTIONS=--max_old_space_size=4096 npm install --legacy-peer-deps react react-dom react-scripts
 
 # Build the application
-RUN npm run build
+RUN NODE_OPTIONS=--max_old_space_size=4096 npm run build
 
 # Clean up unnecessary files
 RUN npm prune --production && \
