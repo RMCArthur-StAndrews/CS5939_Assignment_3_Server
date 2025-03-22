@@ -24,9 +24,10 @@ if [ $? -eq 0 ]; then
   # Check if the API build was successful
   if [ $? -eq 0 ]; then
     echo "API Docker image built successfully."
-    docker exec -it webapp_container sh -c "export REACT_APP_BASE_API_PATH=http://localhost:5000"
+
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 --name webapp_container webapp:latest
+    docker exec -it webapp_container sh -c "export REACT_APP_BASE_API_PATH=http://localhost:5000"
     # set environment variable for the webapp_container to connect to the api_container once it has started
 
     if [ $? -eq 0 ]; then
