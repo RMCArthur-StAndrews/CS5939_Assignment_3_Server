@@ -28,17 +28,17 @@ if [ $? -eq 0 ]; then
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 --name webapp_container webapp:latest
     # set environment variable for the webapp_container to connect to the api_container once it has started
-    ssh -L 8888:localhost:3000 rm417@cs5939-vm02.st-andrews.ac.uk -N &
-    xdg-open http://localhost:8888 || echo "Failed to open browser. Please open http://localhost:8888 manually."
 
     if [ $? -eq 0 ]; then
       echo "Webapp Docker container started successfully."
+      echo "Webapp is accessible at http://localhost:8888"
 
       # Run the API Docker container
       docker run -d -p 5000:5000 --name api_container api:latest
 
       if [ $? -eq 0 ]; then
         echo "API Docker container started successfully."
+        echo "API is accessible at http://localhost:5000"
       else
         echo "Failed to start API Docker container."
       fi
