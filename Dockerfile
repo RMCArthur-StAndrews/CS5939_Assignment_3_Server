@@ -27,10 +27,10 @@ FROM base AS dependencies
 
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    rm -rf ~/.cache/pip
+. venv/bin/activate && \
+pip install --upgrade pip && \
+pip install --no-cache-dir --no-deps -r requirements.txt && \
+rm -rf ~/.cache/pip
 
 # Stage 3: Build stage
 FROM dependencies AS build
