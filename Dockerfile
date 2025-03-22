@@ -1,18 +1,20 @@
 # Use a slim Python image
-FROM python:3.9-alpine3.21
+FROM python:3.9-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages
-RUN apk update && \
-    apk add --no-cache \
-    build-base \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
     cmake \
     git \
     libffi-dev \
-    openssl-dev \
+    libssl-dev \
     python3-dev \
-    tzdata
+    tzdata && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
