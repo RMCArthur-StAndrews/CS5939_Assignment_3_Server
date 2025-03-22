@@ -13,6 +13,10 @@ interface CloudMetric {
   };
 }
 
+const api = axios.create({
+  baseURL: process.env.REACT_APP_BASE_API_PATH,
+});
+
 interface GroupedData {
   [key: string]: {
     x: string[];
@@ -27,7 +31,7 @@ const VisualisedMetrics: React.FC = () => {
   const [selectedGraph, setSelectedGraph] = useState<string>('memory');
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/cloud-data-monitoring')
+    api.get('/cloud-data-monitoring')
       .then(response => {
         console.log('Fetched data:', response.data); // Debugging log
         let parsedData;

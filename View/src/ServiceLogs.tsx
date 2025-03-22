@@ -3,6 +3,10 @@ import axios from 'axios';
 import { Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const api = axios.create({
+  baseURL: process.env.REACT_APP_BASE_API_PATH,
+});
+
 interface MonitoringData {
   time_of_occurence: string;
   execution_hash: string;
@@ -18,7 +22,7 @@ const ServiceLogs: React.FC = () => {
   const [logs, setLogs] = useState<MonitoringData[]>([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/cloud-data-monitoring')
+    api.get('/cloud-data-monitoring')
       .then(response => {
         console.log('Fetched data:', response.data); // Debugging log
         let parsedData;
