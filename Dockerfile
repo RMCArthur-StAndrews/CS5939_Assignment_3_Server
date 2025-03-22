@@ -1,5 +1,5 @@
-# Stage 1: Build stage
-FROM python:slim AS build
+# Stage 1: Base stage
+FROM python:slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -22,12 +22,18 @@ WORKDIR /usr/src/app
 # Copy the requirements.txt file
 COPY requirements.txt .
 
+# Stage 2: Install dependencies
+FROM base AS dependencies
+
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
     pip install --upgrade pip && \
     pip install -r requirements.txt && \
     rm -rf ~/.cache/pip
+
+# Stage 3: Build stage
+FROM dependencies AS build
 
 # Copy the application code
 COPY Controller/ ./Controller/
@@ -41,7 +47,7 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Stage 2: Final stage
+# Stage 4: Final stage
 FROM python:slim
 
 # Set the working directory
