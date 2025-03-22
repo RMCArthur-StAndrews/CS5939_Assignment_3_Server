@@ -26,8 +26,8 @@ if [ $? -eq 0 ]; then
     echo "API Docker image built successfully."
 
     # Run the Webapp Docker container
-    docker run -d -p 3000:3000 --name webapp_container webapp:latest
-    docker exec -it webapp_container sh -c "export REACT_APP_BASE_API_PATH=http://localhost:5000"
+    docker run -d -p 3000:3000 webapp:latest
+    docker exec -it $(docker ps -q -f ancestor=webapp:latest) sh -c "export REACT_APP_BASE_API_PATH=http://localhost:5000"
     # set environment variable for the webapp_container to connect to the api_container once it has started
 
     if [ $? -eq 0 ]; then
@@ -35,7 +35,7 @@ if [ $? -eq 0 ]; then
       echo "Webapp is accessible at http://localhost:8888"
 
       # Run the API Docker container
-      docker run -d -p 5000:5000 --name api_container api:latest
+      docker run -d -p 5000:5000 api:latest
 
       if [ $? -eq 0 ]; then
         echo "API Docker container started successfully."
