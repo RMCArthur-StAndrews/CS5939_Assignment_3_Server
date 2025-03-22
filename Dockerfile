@@ -1,5 +1,5 @@
 # Use a slim Python image
-FROM python:3.9-slim
+FROM python:slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
