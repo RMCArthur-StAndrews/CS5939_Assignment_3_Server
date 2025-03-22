@@ -28,8 +28,8 @@ if [ $? -eq 0 ]; then
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 --name webapp_container webapp:latest
     # set environment variable for the webapp_container to connect to the api_container once it has started
-
-
+    ssh rm417@cs5939-vm02.st-andrews.ac.uk -L 8888:localhost:8888
+    xdg-open http://localhost:8888
 
     if [ $? -eq 0 ]; then
       echo "Webapp Docker container started successfully."
