@@ -1,5 +1,5 @@
 # Stage 1: Build the Node.js application
-FROM node:20-alpine AS build
+FROM node:alpine AS build
 
 LABEL authors="RRHMc"
 
@@ -38,7 +38,7 @@ RUN npm prune --production && \
     rm -rf /usr/src/app/node_modules/@types
 
 # Stage 2: Create the final image
-FROM node:20-slim
+FROM node:alpine
 
 # Set the working directory
 WORKDIR /usr/src/app
