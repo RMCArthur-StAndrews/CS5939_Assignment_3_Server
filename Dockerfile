@@ -29,7 +29,7 @@ FROM base AS dependencies
 RUN python3 -m venv venv && \
 . venv/bin/activate && \
 pip install --upgrade pip && \
-pip install --no-cache-dir --no-deps -r requirements.txt && \
+pip install --no-cache-dir -r requirements.txt && \
 rm -rf ~/.cache/pip
 
 # Stage 3: Build stage
@@ -56,8 +56,11 @@ WORKDIR /usr/src/app
 # Copy the virtual environment and application code from the build stage
 COPY --from=build /usr/src/app /usr/src/app
 
+# Ensure the virtual environment is activated
+ENV PATH="/usr/src/app/venv/bin:$PATH"
+
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 5000
 
 # Command to run the application
-CMD ["venv/bin/python", "Controller/ParentControlerInterface.py"]
+CMD ["python", "Controller/ParentControlerInterface.py"]
