@@ -29,7 +29,7 @@ COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 5000
 
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
