@@ -29,11 +29,8 @@ FROM node:alpine
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the build artifacts from the build stage
-COPY --from=build /usr/src/app/build ./build
-COPY --from=build /usr/src/app/package.json ./package.json
-COPY --from=build /usr/src/app/public ./public
-COPY --from=build /usr/src/app/src ./src
+# Copy the entire application from the build stage
+COPY --from=build /usr/src/app /usr/src/app
 
 # Install production dependencies
 RUN npm install --only=production
