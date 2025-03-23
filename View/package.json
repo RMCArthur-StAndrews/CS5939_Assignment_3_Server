@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.tsx",
   "scripts": {
-    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && react-scripts start",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && ./node_modules/.bin/react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build"
   },
   "keywords": [],
