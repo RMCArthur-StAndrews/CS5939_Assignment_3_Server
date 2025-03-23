@@ -29,7 +29,7 @@ FROM base AS dependencies
 RUN python3 -m venv venv && \
 . venv/bin/activate && \
 pip install --upgrade pip && \
-pip install --no-cache-dir -r requirements.txt && \
+pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip
 
 # Stage 3: Build stage
@@ -57,7 +57,7 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app /usr/src/app
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 3000
 
 # Command to run the application
 CMD ["venv/bin/python", "Controller/ParentControlerInterface.py"]
