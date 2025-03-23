@@ -1,29 +1,45 @@
-# builder stage
-FROM node:20-alpine as builder
+# Stage 1: Build the Node.js application
+FROM node:alpine AS build
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+LABEL authors="RRHMc"
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json from the current directory
+COPY package.json package-lock.json ./
+
+# Clean npm cache and install npm globally, then install dependencies
+RUN npm cache clean --force && \
+    npm install -g npm@11.2.0 && \
+    npm install --legacy-peer-deps
+
+# Set the NODE_OPTIONS environment variable to use legacy OpenSSL providers
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
+# Copy the rest of the application code from the current directory
 COPY . .
+
+# Build the application
 RUN npm run build
 
-# production stage
-FROM node:20-alpine
+# Stage 2: Create the final image
+FROM node:alpine
 
-RUN addgroup -g 1001 -S nonrootgroup && adduser -u 1001 -S nonroot -G nonrootgroup
+# Set the working directory
+WORKDIR /usr/src/app
 
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-RUN npm ci --only=production
-ENV NODE_ENV production
+# Copy the build artifacts from the build stage
+COPY --from=build /usr/src/app/build ./build
+COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/public ./public
+COPY --from=build /usr/src/app/src ./src
 
-ENV PORT 3000
+# Install production dependencies
+RUN npm install --only=production
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/health || exit 1
-
-USER nonroot
-
-CMD ["node","dist/server.js"]
+# Command to run the application
+CMD ["npm", "start"]
