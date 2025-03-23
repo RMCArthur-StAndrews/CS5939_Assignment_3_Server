@@ -58,8 +58,7 @@ COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
-# Copy the virtual environment and application code from the build stage
-COPY --from=build /usr/src/app /usr/src/app
+
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
