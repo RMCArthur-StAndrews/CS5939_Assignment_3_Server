@@ -47,7 +47,7 @@ COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/package.json ./package.json
 
 # Install production dependencies
-RUN npm install --only=production
+RUN npm install
 
 # Expose the port the app runs on
 EXPOSE 3000
