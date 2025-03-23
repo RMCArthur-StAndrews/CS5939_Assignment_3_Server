@@ -61,4 +61,4 @@ COPY --from=build /usr/src/app /usr/src/app
 EXPOSE 3000
 
 # Command to run the application
-CMD ["venv/bin/python", "app.py"]
+CMD ["venv/bin/python", "Controller/ParentControlerInterface.py"]
