@@ -23,7 +23,8 @@ ENV NODE_OPTIONS=--openssl-legacy-provider
 COPY . .
 
 # Install TypeScript and other dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps --save-dev typescript @types/node @types/react @types/react-dom && \
+    npm install --legacy-peer-deps react react-dom
 
 # Build the application
 RUN npm run build
@@ -45,12 +46,11 @@ WORKDIR /usr/src/app
 # Copy the build artifacts from the build stage
 COPY --from=build /usr/src/app/build ./build
 COPY --from=build /usr/src/app/package.json ./package.json
-
-# Install production dependencies
-RUN npm install
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
 # Expose the port the app runs on
 EXPOSE 3000
 
+RUN npm install --legacy-peer-deps react-scripts
 # Command to run the application
 CMD ["npm", "start"]
