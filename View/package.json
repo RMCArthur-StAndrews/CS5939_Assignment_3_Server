@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.tsx",
   "scripts": {
-    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && react-scripts start --ope",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build"
   },
   "keywords": [],
@@ -25,7 +25,7 @@
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "ts-loader": "^6.0.0",
-    "typescript": "^3.2.1",
+    "typescript": "^4.5.4",
     "webpack": "^4.29.6",
     "webpack-dev-middleware": "^3.7.3",
     "webpack-dev-server": "^3.2.1"
