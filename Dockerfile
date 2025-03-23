@@ -38,6 +38,7 @@ FROM dependencies AS build
 # Copy the application code
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
+COPY app.py ./app.py
 
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
