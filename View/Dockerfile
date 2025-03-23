@@ -33,7 +33,7 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app /usr/src/app
 
 # Install production dependencies
-RUN npm install --only=production
+RUN npm install
 
 # Expose the port the app runs on
 EXPOSE 3000
