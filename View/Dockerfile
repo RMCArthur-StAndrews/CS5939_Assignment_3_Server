@@ -29,11 +29,12 @@ FROM node:alpine
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the entire application from the build stage
-COPY --from=build /usr/src/app /usr/src/app
-
-# Install production dependencies
-RUN npm install
+# Copy the build artifacts and node_modules from the build stage
+COPY --from=build /usr/src/app/build ./build
+COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/public ./public
+COPY --from=build /usr/src/app/src ./src
+COPY --from=build /usr/src/app/node_modules ./node_modules
 
 # Expose the port the app runs on
 EXPOSE 3000
