@@ -1,27 +1,42 @@
-from flask import Flask, request, g
+from flask import Flask, request, g, abort
 from flask_restful import Api
 import time
 import tracemalloc
 from Utils.CloudMonitoringUtils import CloudMonitoringUtils
 from Utils.MonitoringRecords import MonitorRecordObject
-# Import specific interfaces
 from Controller.CloudDataMonitoringInterface import CloudDataMonitoringInterface
 from Controller.EdgeMonitoringInterface import EdgeMonitoringInterface
 from Controller.StreamHandlingInterface import StreamHandlingInterface
 from Controller.GeneralUtilsInterface import GeneralUtilsInterface
 from flask_cors import CORS
+
+# List of allowed IP addresses
+EDGE_IP = ['', '127.0.0.1']#<- DEV ONLY ['10.0.0.2:4000'] <- Prod
+CLOUD_IP = ['127.0.0.1']# For DEV and PROD
+
 cloud_monitor = CloudMonitoringUtils()
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 api = Api(app)
+
 @app.before_request
 def before_request():
+    if request.path != '/utils':
+        if request.path == '/stream-handling' and request.remote_addr not in EDGE_IP:
+            abort(403)
+
+        if request.path == '/cloud-monitoring' and request.remote_addr not in CLOUD_IP:
+            abort(403)
+
     g.start_time = time.time()
     g.start_memory = cloud_monitor.process.memory_info().rss
     tracemalloc.start()
 
 @app.after_request
 def after_request(response):
+    if response.status_code == 403:
+        return response
+
     end_time = time.time()
     end_memory = cloud_monitor.process.memory_info().rss
     current, peak = tracemalloc.get_traced_memory()
@@ -45,15 +60,11 @@ def after_request(response):
 
     return response
 
-
 # Register specific interfaces
 api.add_resource(CloudDataMonitoringInterface, '/cloud-data-monitoring')
 api.add_resource(EdgeMonitoringInterface, '/edge-monitoring')
 api.add_resource(StreamHandlingInterface, '/stream-handling')
 api.add_resource(GeneralUtilsInterface, '/utils')
 
-
-
 if __name__ == '__main__':
-
     app.run(debug=True, use_reloader=False)
