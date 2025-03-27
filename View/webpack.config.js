@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  devtool: false,
   entry: './src/index.tsx',
   output: {
     filename: 'bundle.js',
@@ -24,8 +25,14 @@ module.exports = {
       }
     ]
   },
+  ignoreWarnings: [
+    {
+      module: /plotly\.js-dist/,
+      message: /Failed to parse source map/,
+    },
+  ],
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    static: path.join(__dirname, 'dist'),
     compress: true,
     port: 9000
   }

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "src/index.tsx",
   "scripts": {
-    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && ./node_modules/.bin/react-scripts start",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && npm run build && node node_modules/react-scripts/bin/react-scripts.js start",
+    "start:dev": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build"
   },
   "keywords": [],
@@ -14,7 +15,8 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.3",
     "dotenv": "^16.4.7",
-    "plotly.js-dist": "^2.9.0",
+    "plotly.js": "^3.0.1",
+    "plotly.js-dist": "^3.0.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
@@ -22,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.4.2",
+    "@types/plotly.js": "^3.0.1",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "ts-loader": "^6.0.0",
