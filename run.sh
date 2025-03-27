@@ -1,5 +1,7 @@
 #!/bin/bash
 
+docker stop --all
+docker system prune -af
 # Remove existing containers
 docker rm -f webapp_container api_container
 

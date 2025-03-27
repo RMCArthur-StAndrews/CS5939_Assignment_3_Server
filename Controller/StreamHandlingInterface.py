@@ -1,7 +1,6 @@
 import base64
 import json
 
-import torch
 from cryptography.fernet import Fernet
 from flask_restful import Resource
 from flask import request, jsonify
@@ -27,7 +26,7 @@ class StreamHandlingInterface(Resource):
         if image.filename == '':
             return {"message": "No selected image"}, 400
         image = self.edge_to_cloud_decrypt.decrypt(image.read())
-        result = self.model_service.analyze_frame(image)
+        result = self.model_service.analyse_frame(image)
         json_data= json.dumps(result, indent=4).encode('utf-8')
         encrypted_data = self.cloud_to_edge_encrypt.encrypt(json_data)
         return jsonify({"data": encrypted_data.decode('utf-8')})

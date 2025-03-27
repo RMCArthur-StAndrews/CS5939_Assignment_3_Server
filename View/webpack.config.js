@@ -15,6 +15,12 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.js$/,
+        enforce: 'pre',
+        exclude: /node_modules\/plotly\.js-dist/,
+        use: ['source-map-loader'],
       }
     ]
   },
