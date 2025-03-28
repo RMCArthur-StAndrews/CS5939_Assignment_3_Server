@@ -22,18 +22,26 @@ WORKDIR /usr/src/app
 # Copy the requirements.txt file
 COPY requirements.txt .
 
-# Stage 2: Install dependencies
-FROM base AS dependencies
+# Stage 2: Install primary dependencies
+FROM base AS primary-dependencies
 
-# Create a virtual environment, activate it, and install dependencies
+# Create a virtual environment, activate it, and install primary dependencies
 RUN python3 -m venv venv && \
 . venv/bin/activate && \
 pip install --upgrade pip && \
 pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip
 
-# Stage 3: Build stage
-FROM dependencies AS build
+# Stage 3: Install secondary dependencies
+FROM primary-dependencies AS secondary-dependencies
+
+# Install secondary packages
+RUN . venv/bin/activate && \
+pip install --no-cache-dir matplotlib nvidia-cuda-toolkit torchvision && \
+rm -rf ~/.cache/pip
+
+# Stage 4: Build stage
+FROM secondary-dependencies AS build
 
 # Copy the application code
 COPY Controller/ ./Controller/
@@ -47,7 +55,7 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Stage 4: Final stage
+# Stage 5: Final stage
 FROM python:slim
 
 # Set the working directory
@@ -57,8 +65,6 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
-
-
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
