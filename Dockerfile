@@ -68,12 +68,11 @@ EXPOSE 3000
 RUN rm -rf /usr/src/app/venv/lib/python3.*/site-packages/pip* \
     /usr/src/app/venv/lib/python3.*/site-packages/setuptools* \
     /usr/src/app/venv/lib/python3.*/site-packages/wheel* \
-    /usr/src/app/venv/share
-
-# Additional cleanup to free up disk space
-RUN apt-get clean && \
+    /usr/src/app/venv/share && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/* \
-    /usr/src/app/venv/lib/python3.*/__pycache__ /usr/src/app/venv/lib/python3.*/test /usr/src/app/venv/lib/python3.*/tests
+    /usr/src/app/venv/lib/python3.*/__pycache__ /usr/src/app/venv/lib/python3.*/test /usr/src/app/venv/lib/python3.*/tests && \
+    rm -rf /usr/src/app/Controller /usr/src/app/Utils
 
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
