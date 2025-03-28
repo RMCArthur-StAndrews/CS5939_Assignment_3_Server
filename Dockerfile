@@ -35,9 +35,14 @@ rm -rf ~/.cache/pip /tmp/* /var/tmp/*
 # Stage 3: Install dependencies for the packages in requirements.txt
 FROM primary-dependencies AS dependencies
 
-# Install dependencies for the packages in requirements.txt
+# Install NVIDIA packages
 RUN . venv/bin/activate && \
-pip install --no-cache-dir triton pytz pyaes py-cpuinfo nvidia-cusparselt-cu12 mpmath aniso8601 urllib3 tzdata typing-extensions tqdm sympy six setuptools scipy pyyaml pyparsing pycparser pillow packaging nvidia-nvtx-cu12 nvidia-nvjitlink-cu12 nvidia-nccl-cu12 nvidia-curand-cu12 nvidia-cufft-cu12 nvidia-cuda-runtime-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-cupti-cu12 nvidia-cublas-cu12 networkx kiwisolver Jinja2 itsdangerous idna fsspec fonttools filelock cycler contourpy charset-normalizer certifi blinker python-dateutil nvidia-cusparse-cu12 nvidia-cudnn-cu12 cffi nvidia-cusolver-cu12 matplotlib seaborn ultralytics-thop torchvision && \
+pip install --no-cache-dir nvidia-cusparselt-cu12 nvidia-nvtx-cu12 nvidia-nvjitlink-cu12 nvidia-nccl-cu12 nvidia-curand-cu12 nvidia-cufft-cu12 nvidia-cuda-runtime-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-cupti-cu12 nvidia-cublas-cu12 nvidia-cusparse-cu12 nvidia-cudnn-cu12 nvidia-cusolver-cu12 && \
+rm -rf ~/.cache/pip /tmp/* /var/tmp/*
+
+# Install other dependencies
+RUN . venv/bin/activate && \
+pip install --no-cache-dir triton pytz pyaes py-cpuinfo mpmath aniso8601 urllib3 tzdata typing-extensions tqdm sympy six setuptools scipy pyyaml pyparsing pycparser pillow packaging networkx kiwisolver Jinja2 itsdangerous idna fsspec fonttools filelock cycler contourpy charset-normalizer certifi blinker python-dateutil matplotlib seaborn ultralytics-thop torchvision && \
 pip check && \
 rm -rf ~/.cache/pip /tmp/* /var/tmp/*
 
@@ -69,3 +74,9 @@ COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Command to run the application
+CMD ["python", "Controller/ParentControlerInterface.py"]
