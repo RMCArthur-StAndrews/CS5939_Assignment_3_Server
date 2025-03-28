@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Remove all dangling images
-docker image prune -f
+docker builder prune
 
 # Remove all unused images
 docker image prune -a -f
