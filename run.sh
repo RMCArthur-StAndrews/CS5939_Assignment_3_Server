@@ -15,6 +15,18 @@ docker build -t webapp:latest -f Dockerfile . --squash
 # Check if the Webapp build was successful
 if [ $? -eq 0 ]; then
   echo "Webapp Docker image built successfully."
+
+  # Run the Webapp Docker container
+  docker run -d -p 3000:3000 webapp:latest
+
+  if [ $? -eq 0 ]; then
+    echo "Webapp Docker container started successfully."
+    echo "Webapp is accessible at http://localhost:8888"
+  else
+    echo "Failed to start Webapp Docker container."
+    exit 1
+  fi
+
   cd ..
 
   # Ensure clean.sh has execute permissions
@@ -31,26 +43,14 @@ if [ $? -eq 0 ]; then
   if [ $? -eq 0 ]; then
     echo "API Docker image built successfully."
 
-    # Run the Webapp Docker container
-    docker run -d -p 3000:3000 webapp:latest
-
-    # set environment variable for the webapp_container to connect to the api_container once it has started
+    # Run the API Docker container
+    docker run -d -p 5000:5000 api:latest
 
     if [ $? -eq 0 ]; then
-      echo "Webapp Docker container started successfully."
-      echo "Webapp is accessible at http://localhost:8888"
-
-      # Run the API Docker container
-      docker  run -d -p 5000:5000 api:latest
-
-      if [ $? -eq 0 ]; then
-        echo "API Docker container started successfully."
-        echo "API is accessible at http://localhost:5000"
-      else
-        echo "Failed to start API Docker container."
-      fi
+      echo "API Docker container started successfully."
+      echo "API is accessible at http://localhost:5000"
     else
-      echo "Failed to start Webapp Docker container."
+      echo "Failed to start API Docker container."
     fi
   else
     echo "Failed to build API Docker image."
