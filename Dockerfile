@@ -58,21 +58,21 @@ COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
-# Copy the virtual environment and application code from the build stage
-COPY --from=build /usr/src/app /usr/src/app
-
-
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
 
 # Expose the port the app runs on
 EXPOSE 3000
+
 # Cleanup unnecessary libraries or assets
 RUN rm -rf /usr/src/app/venv/lib/python3.*/site-packages/pip* \
     /usr/src/app/venv/lib/python3.*/site-packages/setuptools* \
     /usr/src/app/venv/lib/python3.*/site-packages/wheel* \
     /usr/src/app/venv/share
 
+# Additional cleanup to free up disk space
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/*
 
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
