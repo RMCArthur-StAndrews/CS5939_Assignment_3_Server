@@ -14,7 +14,7 @@ RUN apt-get update && \
     python3-dev \
     tzdata && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -30,7 +30,7 @@ RUN python3 -m venv venv && \
 . venv/bin/activate && \
 pip install --upgrade pip && \
 pip install --no-cache-dir --no-deps -r requirements.txt && \
-rm -rf ~/.cache/pip
+rm -rf ~/.cache/pip /tmp/* /var/tmp/*
 
 # Stage 3: Install dependencies for the packages in requirements.txt
 FROM primary-dependencies AS dependencies
@@ -39,7 +39,7 @@ FROM primary-dependencies AS dependencies
 RUN . venv/bin/activate && \
 pip install --no-cache-dir -r requirements.txt && \
 pip check && \
-rm -rf ~/.cache/pip
+rm -rf ~/.cache/pip /tmp/* /var/tmp/*
 
 # Stage 4: Build stage
 FROM dependencies AS build
