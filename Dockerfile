@@ -22,6 +22,9 @@ WORKDIR /usr/src/app
 # Copy the requirements.txt file
 COPY requirements.txt .
 
+# Clear down images
+RUN docker image prune -f
+
 # Stage 2: Install dependencies
 FROM base AS dependencies
 
@@ -31,6 +34,9 @@ RUN python3 -m venv venv && \
 pip install --upgrade pip && \
 pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip
+
+# Clear down images
+RUN docker image prune -f
 
 # Stage 3: Build stage
 FROM dependencies AS build
@@ -47,6 +53,9 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Clear down images
+RUN docker image prune -f
+
 # Stage 4: Final stage
 FROM python:slim AS final
 
@@ -57,8 +66,6 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
-
-
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
