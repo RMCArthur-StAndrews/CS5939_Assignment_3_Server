@@ -1,18 +1,20 @@
 # Stage 1: Base stage
-FROM python:alpine AS base
+FROM python:slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages and clean up
-RUN apk update && \
-    apk add --no-cache \
-    build-base \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
     cmake \
     git \
     libffi-dev \
-    openssl-dev \
+    libssl-dev \
     python3-dev \
-    tzdata
+    tzdata && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -40,10 +42,13 @@ COPY Utils/ ./Utils/
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
-    apk del build-base cmake git libffi-dev openssl-dev python3-dev
+    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Stage 4: Final stage
-FROM python:alpine
+FROM python:slim AS final
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -52,6 +57,8 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
+
+
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
