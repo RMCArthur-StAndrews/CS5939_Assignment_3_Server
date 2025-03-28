@@ -22,7 +22,7 @@ if [ $? -eq 0 ]; then
 
   # Build the Docker image for the API
   DOCKER_BUILDKIT=1
-  docker build --no-cache -t api:latest -f Dockerfile .
+  docker build -t api:latest -f Dockerfile .
 
   # Check if the API build was successful
   if [ $? -eq 0 ]; then
