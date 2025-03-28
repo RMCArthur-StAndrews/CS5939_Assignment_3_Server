@@ -21,6 +21,7 @@ if [ $? -eq 0 ]; then
   ./clean.sh
 
   # Build the Docker image for the API
+  DOCKER_BUILDKIT=1
   docker build -t api:latest -f Dockerfile . --squash
 
   # Check if the API build was successful
@@ -37,7 +38,7 @@ if [ $? -eq 0 ]; then
       echo "Webapp is accessible at http://localhost:8888"
 
       # Run the API Docker container
-      docker run -d -p 5000:5000 api:latest
+      docker  run -d -p 5000:5000 api:latest
 
       if [ $? -eq 0 ]; then
         echo "API Docker container started successfully."
