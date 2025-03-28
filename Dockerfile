@@ -1,50 +1,25 @@
 # Stage 1: Build stage
-FROM python:slim AS build
+FROM python:slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install only the necessary packages for building
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    libffi-dev \
-    libssl-dev \
-    python3-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the working directory
-WORKDIR /usr/src/app
-
-# Copy the requirements.txt file and install dependencies
+# Install dependencies
 COPY requirements.txt .
-RUN python3 -m venv venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    rm -rf ~/.cache/pip
-
-# Copy the application code
-COPY Controller/ ./Controller/
-COPY Utils/ ./Utils/
-
-# Clean up unnecessary files
-RUN find /usr/src/app -name '*.pyc' -delete && \
-    find /usr/src/app -name '__pycache__' -delete
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Final stage
 FROM python:slim
 
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy application code
+COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+COPY . /app
+
 # Set the working directory
-WORKDIR /usr/src/app
-
-# Copy the virtual environment and application code from the build stage
-COPY --from=build /usr/src/app/venv /usr/src/app/venv
-COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
-COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
-
-# Ensure the virtual environment is activated
-ENV PATH="/usr/src/app/venv/bin:$PATH"
+WORKDIR /app
 
 # Expose the port the app runs on
 EXPOSE 3000
