@@ -10,7 +10,7 @@ docker rmi -f webapp:latest api:latest
 
 # Navigate to the View directory and build the Docker image for the Webapp
 cd View
-docker build -t webapp:latest -f Dockerfile . --squash
+docker build -t webapp:latest -f Dockerfile .
 
 # Check if the Webapp build was successful
 if [ $? -eq 0 ]; then
@@ -22,7 +22,7 @@ if [ $? -eq 0 ]; then
 
   # Build the Docker image for the API
   DOCKER_BUILDKIT=1
-  docker build -t api:latest -f Dockerfile . --squash
+  docker build -t api:latest -f Dockerfile .
 
   # Check if the API build was successful
   if [ $? -eq 0 ]; then
