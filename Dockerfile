@@ -1,18 +1,20 @@
 # Stage 1: Base stage
-FROM python:alpine AS base
+FROM python:slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages and clean up
-RUN apk update && \
-    apk add --no-cache \
-    build-base \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
     cmake \
     git \
     libffi-dev \
-    openssl-dev \
+    libssl-dev \
     python3-dev \
-    tzdata
+    tzdata && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -40,11 +42,13 @@ COPY Utils/ ./Utils/
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
-    apk del build-base cmake git libffi-dev openssl-dev python3-dev && \
-    rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Stage 4: Final stage
-FROM python:alpine
+FROM python:slim
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -65,7 +69,8 @@ RUN rm -rf /usr/src/app/venv/lib/python3.*/site-packages/pip* \
     /usr/src/app/venv/lib/python3.*/site-packages/setuptools* \
     /usr/src/app/venv/lib/python3.*/site-packages/wheel* \
     /usr/src/app/venv/share && \
-    rm -rf /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/* \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/* \
     /usr/src/app/venv/lib/python3.*/__pycache__ /usr/src/app/venv/lib/python3.*/test /usr/src/app/venv/lib/python3.*/tests && \
     rm -rf /usr/src/app/Controller /usr/src/app/Utils
 

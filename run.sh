@@ -17,6 +17,9 @@ if [ $? -eq 0 ]; then
   echo "Webapp Docker image built successfully."
   cd ..
 
+  # Ensure clean.sh has execute permissions
+  chmod +x clean.sh
+
   # Cleanup old Docker images after building the Webapp
   ./clean.sh
 
