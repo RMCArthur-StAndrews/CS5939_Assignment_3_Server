@@ -32,16 +32,17 @@ pip install --upgrade pip && \
 pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip
 
-# Stage 3: Install secondary dependencies
-FROM primary-dependencies AS secondary-dependencies
+# Stage 3: Install dependencies for the packages in requirements.txt
+FROM primary-dependencies AS dependencies
 
-# Install secondary packages
+# Install dependencies for the packages in requirements.txt
 RUN . venv/bin/activate && \
-pip install --no-cache-dir matplotlib nvidia-cuda-toolkit torchvision && \
+pip install --no-cache-dir -r requirements.txt && \
+pip check && \
 rm -rf ~/.cache/pip
 
 # Stage 4: Build stage
-FROM secondary-dependencies AS build
+FROM dependencies AS build
 
 # Copy the application code
 COPY Controller/ ./Controller/
