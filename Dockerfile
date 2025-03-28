@@ -1,122 +1,72 @@
-FROM python:slim AS build
+# Stage 1: Base stage
+FROM python:slim AS base
 
-# Set non-interactive mode for apt-get
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update system packages and install build dependencies
+# Install necessary packages and clean up
 RUN apt-get update && \
-    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
-        build-essential \
-        cmake \
-        git \
-        libffi-dev \
-        libssl-dev \
-        python3-dev \
-        tzdata && \
+    build-essential \
+    cmake \
+    git \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    tzdata && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy requirements for caching pip install steps
+# Copy the requirements.txt file
 COPY requirements.txt .
 
-# Create a Python virtual environment
-RUN python -m venv /venv
+# Stage 2: Install dependencies
+FROM base AS dependencies
 
-# Install Python dependencies using BuildKit cache mount to avoid baking pip cache into image
-RUN --mount=type=cache,target=/root/.cache/pip \
-    . /venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir \
-        nvidia-cusparselt-cu12 \
-        nvidia-nvtx-cu12 \
-        nvidia-nvjitlink-cu12 \
-        nvidia-nccl-cu12 \
-        nvidia-curand-cu12 \
-        nvidia-cufft-cu12 \
-        nvidia-cuda-runtime-cu12 \
-        nvidia-cuda-nvrtc-cu12 \
-        nvidia-cuda-cupti-cu12 \
-        nvidia-cublas-cu12 \
-        nvidia-cusparse-cu12 \
-        nvidia-cudnn-cu12 \
-        nvidia-cusolver-cu12 \
-        triton \
-        pytz \
-        pyaes \
-        py-cpuinfo \
-        mpmath \
-        aniso8601 \
-        urllib3 \
-        tzdata \
-        typing-extensions \
-        tqdm \
-        sympy \
-        six \
-        setuptools \
-        scipy \
-        pyyaml \
-        pyparsing \
-        pycparser \
-        pillow \
-        packaging \
-        networkx \
-        kiwisolver \
-        Jinja2 \
-        itsdangerous \
-        idna \
-        fsspec \
-        fonttools \
-        filelock \
-        cycler \
-        contourpy \
-        charset-normalizer \
-        certifi \
-        blinker \
-        python-dateutil \
-        matplotlib \
-        seaborn \
-        ultralytics-thop \
-        torchvision && \
-    pip check && \
-    rm -rf ~/.cache/pip
+# Create a virtual environment, activate it, and install dependencies
+RUN python3 -m venv venv && \
+. venv/bin/activate && \
+pip install --upgrade pip && \
+pip install --no-cache-dir --no-deps -r requirements.txt && \
+rm -rf ~/.cache/pip
 
-# Copy application source code
+# Stage 3: Build stage
+FROM dependencies AS build
+
+# Copy the application code
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
 
-# Clean up Python cache and purge build dependencies to reduce image size
-RUN find . -name '*.pyc' -delete && \
-    find . -name '__pycache__' -delete && \
-    apt-get purge -y --auto-remove \
-        build-essential \
-        cmake \
-        git \
-        libffi-dev \
-        libssl-dev \
-        python3-dev && \
+# Clean up unnecessary files
+RUN find /usr/src/app -name '*.pyc' -delete && \
+    find /usr/src/app -name '__pycache__' -delete && \
+    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-#############################################
-# Final Stage: Create a lean production image
-#############################################
+# Stage 4: Final stage
 FROM python:slim
 
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the updated virtual environment and source code from build stage
-COPY --from=build /venv /venv
+# Copy the virtual environment and application code from the build stage
+COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
-# Ensure the virtual environment’s binaries are in PATH
-ENV PATH="/venv/bin:$PATH"
+# Copy the virtual environment and application code from the build stage
+COPY --from=build /usr/src/app /usr/src/app
 
-# Expose the port your application uses
+
+# Ensure the virtual environment is activated
+ENV PATH="/usr/src/app/venv/bin:$PATH"
+
+# Expose the port the app runs on
 EXPOSE 3000
 
-# Run the production application
+# Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
