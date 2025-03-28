@@ -1,9 +1,9 @@
-# Stage 1: Build Stage with All Dependencies
+# syntax=docker/dockerfile:1.2
 FROM python:slim AS build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build tools and system dependencies
+# Install build dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -15,15 +15,15 @@ RUN apt-get update && \
         tzdata && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /usr/src/app
 
-# Copy your requirements file (assume it lists primary dependencies)
 COPY requirements.txt .
 
-# Create a virtual environment and install all dependencies in one layer.
-# Include NVIDIA and other extra dependencies as needed.
-RUN python3 -m venv /venv && \
+# Create virtual environment
+RUN python -m venv /venv
+
+# Use BuildKit cache mount to avoid caching pip files in the image
+RUN --mount=type=cache,target=/root/.cache/pip \
     . /venv/bin/activate && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
@@ -40,8 +40,7 @@ RUN python3 -m venv /venv && \
         nvidia-cublas-cu12 \
         nvidia-cusparse-cu12 \
         nvidia-cudnn-cu12 \
-        nvidia-cusolver-cu12 && \
-    pip install --no-cache-dir \
+        nvidia-cusolver-cu12 \
         triton \
         pytz \
         pyaes \
@@ -80,18 +79,15 @@ RUN python3 -m venv /venv && \
         ultralytics-thop \
         torchvision && \
     pip check && \
-    rm -rf ~/.cache/pip /tmp/* /var/tmp/*
+    rm -rf ~/.cache/pip
 
-# Copy application source code
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
 
-# Remove unnecessary files (e.g. Python caches)
+# Clean up temporary files and remove build dependencies
 RUN find . -name '*.pyc' -delete && \
-    find . -name '__pycache__' -delete
-
-# Remove build tools and extra dependencies to slim the image
-RUN apt-get purge -y --auto-remove \
+    find . -name '__pycache__' -delete && \
+    apt-get purge -y --auto-remove \
         build-essential \
         cmake \
         git \
@@ -100,20 +96,17 @@ RUN apt-get purge -y --auto-remove \
         python3-dev && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Stage 2: Final Stage
+# Final Stage
 FROM python:slim
 
 WORKDIR /usr/src/app
 
-# Copy the virtual environment and application code from the build stage
 COPY --from=build /venv /venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
-# Ensure the virtual environment is used
 ENV PATH="/venv/bin:$PATH"
 
 EXPOSE 3000
 
-# Command to run your application
 CMD ["python", "Controller/ParentControlerInterface.py"]
