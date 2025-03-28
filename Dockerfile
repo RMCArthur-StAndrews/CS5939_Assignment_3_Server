@@ -1,5 +1,5 @@
 # Stage 1: Base stage
-FROM python:alpine AS base
+FROM python:slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -48,7 +48,7 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Stage 4: Final stage
-FROM python:alpine
+FROM python:slim
 
 # Set the working directory
 WORKDIR /usr/src/app
