@@ -33,7 +33,7 @@ pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip /tmp/* /var/tmp/*
 
 # Stage 3: Install NVIDIA dependencies
-FROM nvidia-dependencies AS dependencies
+FROM base AS nvidia-dependencies
 
 # Install NVIDIA packages
 RUN . venv/bin/activate && \
