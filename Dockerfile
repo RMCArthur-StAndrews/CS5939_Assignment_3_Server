@@ -29,7 +29,7 @@ FROM base AS dependencies
 RUN python3 -m venv venv && \
 . venv/bin/activate && \
 pip install --upgrade pip && \
-pip install --no-cache-dir -r requirements.txt && \
+pip install --no-cache-dir --no-deps -r requirements.txt && \
 rm -rf ~/.cache/pip
 
 # Stage 3: Build stage
