@@ -1,32 +1,32 @@
-# syntax=docker/dockerfile:1.2
-FROM python:slim AS build
-
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install build dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        build-essential \
+FROM python:alpine AS base
+ENV PYTHONUNBUFFERED=1
+# Install build tools and dependencies; use apk’s --no-cache option to avoid local caching
+RUN apk add --no-cache \
+        build-base \
         cmake \
         git \
         libffi-dev \
-        libssl-dev \
+        openssl-dev \
         python3-dev \
         tzdata && \
-    rm -rf /var/lib/apt/lists/*
-
+    rm -rf /var/cache/apk/*
 WORKDIR /usr/src/app
-
 COPY requirements.txt .
 
-# Create virtual environment
-RUN python -m venv /venv
-
-# Use BuildKit cache mount to avoid caching pip files in the image
-RUN --mount=type=cache,target=/root/.cache/pip \
+# Stage 2: Primary dependencies
+FROM base AS primary-dependencies
+# Create virtual environment and install primary packages using --no-cache-dir
+RUN python3 -m venv /venv && \
     . /venv/bin/activate && \
     pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
+    rm -rf /root/.cache/pip
+
+# Stage 3: NVIDIA dependencies
+# Copy the venv from primary-dependencies to use the same environment
+FROM base AS nvidia-dependencies
+COPY --from=primary-dependencies /venv /venv
+RUN . /venv/bin/activate && \
     pip install --no-cache-dir \
         nvidia-cusparselt-cu12 \
         nvidia-nvtx-cu12 \
@@ -40,73 +40,38 @@ RUN --mount=type=cache,target=/root/.cache/pip \
         nvidia-cublas-cu12 \
         nvidia-cusparse-cu12 \
         nvidia-cudnn-cu12 \
-        nvidia-cusolver-cu12 \
-        triton \
-        pytz \
-        pyaes \
-        py-cpuinfo \
-        mpmath \
-        aniso8601 \
-        urllib3 \
-        tzdata \
-        typing-extensions \
-        tqdm \
-        sympy \
-        six \
-        setuptools \
-        scipy \
-        pyyaml \
-        pyparsing \
-        pycparser \
-        pillow \
-        packaging \
-        networkx \
-        kiwisolver \
-        Jinja2 \
-        itsdangerous \
-        idna \
-        fsspec \
-        fonttools \
-        filelock \
-        cycler \
-        contourpy \
-        charset-normalizer \
-        certifi \
-        blinker \
-        python-dateutil \
-        matplotlib \
-        seaborn \
-        ultralytics-thop \
+        nvidia-cusolver-cu12 && \
+    rm -rf /root/.cache/pip
+
+# Stage 4: Other dependencies
+FROM primary-dependencies AS dependencies
+# Merge NVIDIA dependencies into the environment
+COPY --from=nvidia-dependencies /venv /venv
+RUN . /venv/bin/activate && \
+    pip install --no-cache-dir \
+        triton pytz pyaes py-cpuinfo mpmath aniso8601 urllib3 tzdata typing-extensions tqdm \
+        sympy six setuptools scipy pyyaml pyparsing pycparser pillow packaging networkx \
+        kiwisolver Jinja2 itsdangerous idna fsspec fonttools filelock cycler contourpy \
+        charset-normalizer certifi blinker python-dateutil matplotlib seaborn ultralytics-thop \
         torchvision && \
     pip check && \
-    rm -rf ~/.cache/pip
+    rm -rf /root/.cache/pip
 
+# Stage 5: Build stage – copy application code and clean up temporary files and build tools
+FROM dependencies AS build
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
+RUN find /usr/src/app -name '*.pyc' -delete && \
+    find /usr/src/app -name '__pycache__' -delete && \
+    apk del build-base cmake git libffi-dev openssl-dev python3-dev && \
+    rm -rf /var/cache/apk/*
 
-# Clean up temporary files and remove build dependencies
-RUN find . -name '*.pyc' -delete && \
-    find . -name '__pycache__' -delete && \
-    apt-get purge -y --auto-remove \
-        build-essential \
-        cmake \
-        git \
-        libffi-dev \
-        libssl-dev \
-        python3-dev && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Final Stage
-FROM python:slim
-
+# Stage 6: Final production image
+FROM python:3.9-alpine AS final
 WORKDIR /usr/src/app
-
 COPY --from=build /venv /venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
-
-ENV PATH="/venv/bin:$PATH"
-
+ENV PATH="/usr/src/app/venv/bin:$PATH"
 EXPOSE 3000
-
 CMD ["python", "Controller/ParentControlerInterface.py"]
