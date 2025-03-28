@@ -4,17 +4,15 @@ FROM python:alpine AS base
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages and clean up
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
+RUN apk update && \
+    apk add --no-cache \
+    build-base \
     cmake \
     git \
     libffi-dev \
-    libssl-dev \
+    openssl-dev \
     python3-dev \
-    tzdata && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    tzdata
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -42,10 +40,7 @@ COPY Utils/ ./Utils/
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
-    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apk del build-base cmake git libffi-dev openssl-dev python3-dev
 
 # Stage 4: Final stage
 FROM python:alpine
@@ -57,8 +52,6 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
-
-
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
