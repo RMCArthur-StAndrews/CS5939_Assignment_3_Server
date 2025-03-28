@@ -3,16 +3,13 @@ FROM python:slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install necessary packages and clean up
+# Install only the necessary packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     build-essential \
-    cmake \
-    git \
     libffi-dev \
     libssl-dev \
-    python3-dev \
-    tzdata && \
+    python3-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -22,21 +19,15 @@ WORKDIR /usr/src/app
 # Copy the requirements.txt file
 COPY requirements.txt .
 
-# Clear down images
-RUN docker image prune -f
-
 # Stage 2: Install dependencies
 FROM base AS dependencies
 
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
-. venv/bin/activate && \
-pip install --upgrade pip && \
-pip install --no-cache-dir --no-deps -r requirements.txt && \
-rm -rf ~/.cache/pip
-
-# Clear down images
-RUN docker image prune -f
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir --no-deps -r requirements.txt && \
+    rm -rf ~/.cache/pip
 
 # Stage 3: Build stage
 FROM dependencies AS build
@@ -48,13 +39,10 @@ COPY Utils/ ./Utils/
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
-    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
+    apt-get remove --purge -y build-essential libffi-dev libssl-dev python3-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Clear down images
-RUN docker image prune -f
 
 # Stage 4: Final stage
 FROM python:slim AS final
