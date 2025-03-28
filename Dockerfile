@@ -72,7 +72,8 @@ RUN rm -rf /usr/src/app/venv/lib/python3.*/site-packages/pip* \
 
 # Additional cleanup to free up disk space
 RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/app/venv/include/* /usr/src/app/venv/share/* \
+    /usr/src/app/venv/lib/python3.*/__pycache__ /usr/src/app/venv/lib/python3.*/test /usr/src/app/venv/lib/python3.*/tests
 
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
