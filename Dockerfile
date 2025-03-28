@@ -3,6 +3,9 @@ FROM python:slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Install build tools
+RUN apt-get update && apt-get install -y build-essential gcc g++ make
+
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
