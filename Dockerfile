@@ -67,7 +67,7 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     rm -rf /var/cache/apk/*
 
 # Stage 6: Final production image
-FROM python:3.9-alpine AS final
+FROM python:alpine AS final
 WORKDIR /usr/src/app
 COPY --from=build /venv /venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
