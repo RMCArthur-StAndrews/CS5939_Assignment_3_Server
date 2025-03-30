@@ -25,6 +25,14 @@ COPY requirements.txt .
 # Stage 2: Install dependencies
 FROM base AS dependencies
 
+# Install OpenCV dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
@@ -38,9 +46,6 @@ FROM dependencies AS build
 # Copy the application code
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
-
-# Debug step: List contents of /usr/src/app/Utils
-RUN ls -al /usr/src/app/Utils
 
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
@@ -61,12 +66,10 @@ COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
-# Debug step: List contents of /usr/src/app/Utils in the final stage
-RUN ls -al /usr/src/app/Utils
-
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
 ENV PYTHONPATH="/usr/src/app"
+
 # Expose the port the app runs on
 EXPOSE 4000
 
