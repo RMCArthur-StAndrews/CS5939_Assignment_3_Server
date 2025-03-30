@@ -28,7 +28,7 @@ COPY requirements.txt .
 RUN python3 -m venv venv && \
     . venv/bin/activate && \
     pip install --upgrade pip && \
-    pip install --no-deps -r requirements.txt && \
+    pip install --no-cache-dir -r requirements.txt  --extra-index-url https://download.pytorch.org/whl/cpu && \
     rm -rf ~/.cache/pip
 
 # Copy the application code
