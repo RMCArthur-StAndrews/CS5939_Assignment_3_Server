@@ -15,10 +15,8 @@ WORKDIR /usr/src/app
 
 # Copy the requirements.txt file and install dependencies
 COPY requirements.txt .
-RUN python3 -m venv venv && \
-    . venv/bin/activate && \
-    pip install --upgrade pip && \
-    pip install  -r requirements.txt
+# Install required Python packages
+RUN pip install -r requirements.txt
 
 # Copy the application code
 COPY Controller/ ./Controller/
