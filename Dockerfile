@@ -39,6 +39,9 @@ FROM dependencies AS build
 COPY Controller/ ./Controller/
 COPY Utils/ ./Utils/
 
+# Debug step: List contents of /usr/src/app/Utils
+RUN ls -al /usr/src/app/Utils
+
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
@@ -58,10 +61,14 @@ COPY --from=build /usr/src/app/venv /usr/src/app/venv
 COPY --from=build /usr/src/app/Controller /usr/src/app/Controller
 COPY --from=build /usr/src/app/Utils /usr/src/app/Utils
 
+# Debug step: List contents of /usr/src/app/Utils in the final stage
+RUN ls -al /usr/src/app/Utils
+
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
 
 # Expose the port the app runs on
 EXPOSE 3000
+
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
