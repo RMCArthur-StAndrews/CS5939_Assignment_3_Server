@@ -50,8 +50,6 @@ COPY Utils/ ./Utils/
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
     find /usr/src/app -name '__pycache__' -delete && \
-    apt-get remove --purge -y build-essential cmake git libffi-dev libssl-dev python3-dev && \
-    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
