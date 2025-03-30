@@ -1,24 +1,19 @@
 FROM python:alpine
 
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Install necessary packages and clean up
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
+RUN apk update && \
+    apk add --no-cache \
+    build-base \
     cmake \
     git \
     libffi-dev \
-    libssl-dev \
+    openssl-dev \
     python3-dev \
     tzdata \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender1 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    mesa-gl \
+    glib \
+    libxext-dev \
+    libxrender-dev
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -37,9 +32,7 @@ COPY Utils/ ./Utils/
 
 # Clean up unnecessary files
 RUN find /usr/src/app -name '*.pyc' -delete && \
-    find /usr/src/app -name '__pycache__' -delete && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    find /usr/src/app -name '__pycache__' -delete
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
