@@ -12,7 +12,8 @@ RUN apt-get update && \
     libffi-dev \
     libssl-dev \
     python3-dev \
-    tzdata && \
+    tzdata \
+    libgl1-mesa-glx && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -67,6 +68,7 @@ RUN ls -al /usr/src/app/Utils
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
 ENV PYTHONPATH="/usr/src/app"
+
 # Expose the port the app runs on
 EXPOSE 4000
 
