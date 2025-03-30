@@ -1,5 +1,5 @@
 # Stage 1: Base stage
-FROM python:slim AS base
+FROM ubuntu:22.04 AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -12,6 +12,7 @@ RUN apt-get update && \
     libffi-dev \
     libssl-dev \
     python3-dev \
+    python3-venv \
     tzdata && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -54,7 +55,15 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Stage 4: Final stage
-FROM python:slim
+FROM ubuntu:22.04
+
+# Install OpenCV dependencies in the final stage
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -72,4 +81,4 @@ ENV PYTHONPATH="/usr/src/app"
 EXPOSE 4000
 
 # Command to run the application
-CMD ["python", "Controller/ParentControlerInterface.py"]
+CMD ["python3", "Controller/ParentControlerInterface.py"]
