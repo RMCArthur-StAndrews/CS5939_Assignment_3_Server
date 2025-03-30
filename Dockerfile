@@ -1,49 +1,47 @@
 # Stage 1: Base stage
-FROM ubuntu:22.04 AS base
+FROM python:slim AS base
 
-ENV DEBIAN_FRONTEND="noninteractive"
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install necessary packages and clean up
-RUN apt-get update --yes && \
-    apt-get upgrade --yes && \
-    apt-get install --yes --no-install-recommends \
-    locales \
-    tzdata \
-    python3 \
-    python3-venv \
-    python3-pip \
-    python3-dev \
-    openjdk-17-jdk-headless \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     build-essential \
-    wget \
-    zip \
-    unzip \
-    curl \
-    git \
-    ca-certificates \
-    software-properties-common \
     cmake \
-    pkg-config \
-    vim \
-    htop && \
-    echo "en_GB.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen && \
+    git \
+    libffi-dev \
+    libssl-dev \
+    python3-dev \
+    tzdata && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin:${PATH}"
 
 # Set the working directory
 WORKDIR /usr/src/app
 
 # Copy the requirements.txt file
-COPY requirements.txt ./
+COPY requirements.txt .
 
-# Upgrade pip and install dependencies
-RUN pip3 install --user --upgrade --disable-pip-version-check pip && \
-    pip3 install --user --no-cache-dir --disable-pip-version-check --root-user-action=ignore -r requirements.txt
+# Stage 2: Install dependencies
+FROM base AS dependencies
 
-# Stage 2: Build stage
-FROM base AS build
+# Install OpenCV dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create a virtual environment, activate it, and install dependencies
+RUN python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install --no-cache-dir --no-deps -r requirements.txt && \
+    rm -rf ~/.cache/pip
+
+# Stage 3: Build stage
+FROM dependencies AS build
 
 # Copy the application code
 COPY Controller/ ./Controller/
@@ -55,16 +53,8 @@ RUN find /usr/src/app -name '*.pyc' -delete && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Stage 3: Final stage
-FROM ubuntu:22.04
-
-# Install OpenCV dependencies in the final stage
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Stage 4: Final stage
+FROM python:slim
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -82,4 +72,4 @@ ENV PYTHONPATH="/usr/src/app"
 EXPOSE 4000
 
 # Command to run the application
-CMD ["python3", "Controller/ParentControlerInterface.py"]
+CMD ["python", "Controller/ParentControlerInterface.py"]
