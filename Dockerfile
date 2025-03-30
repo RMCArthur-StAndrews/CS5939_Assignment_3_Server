@@ -26,12 +26,13 @@ COPY requirements.txt .
 FROM base AS dependencies
 
 # Install OpenCV dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Install system dependencies for OpenCV
+RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
-    libglib2.0-0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender1
 
 # Create a virtual environment, activate it, and install dependencies
 RUN python3 -m venv venv && \
