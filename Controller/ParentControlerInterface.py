@@ -11,7 +11,7 @@ from Controller.GeneralUtilsInterface import GeneralUtilsInterface
 from flask_cors import CORS
 
 # List of allowed IP addresses
-EDGE_IP = ['', '127.0.0.1']#<- DEV ONLY ['10.0.0.2:4000'] <- Prod
+EDGE_IP = ['10.0.0.2:4000'] #<- Prod['', '127.0.0.1']<- DEV ONLY
 CLOUD_IP = ['127.0.0.1']# For DEV and PROD
 
 cloud_monitor = CloudMonitoringUtils()
