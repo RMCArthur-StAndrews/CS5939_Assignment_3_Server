@@ -66,9 +66,9 @@ RUN ls -al /usr/src/app/Utils
 
 # Ensure the virtual environment is activated
 ENV PATH="/usr/src/app/venv/bin:$PATH"
-
+ENV PYTHONPATH="/usr/src/app"
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 4000
 
 # Command to run the application
 CMD ["python", "Controller/ParentControlerInterface.py"]
