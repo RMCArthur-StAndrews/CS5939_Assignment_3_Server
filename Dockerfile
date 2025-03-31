@@ -49,4 +49,4 @@ ENV PYTHONPATH="/usr/src/app"
 EXPOSE 4000
 
 # Command to run the application
-CMD ["python", "Controller/ParentControlerInterface.py"]
+CMD ["flask", "run", "--host=0.0.0.0 --port=5000"]
