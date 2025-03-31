@@ -46,7 +46,7 @@ ENV PATH="/usr/src/app/venv/bin:$PATH"
 ENV PYTHONPATH="/usr/src/app"
 
 # Expose the port the app runs on
-EXPOSE 4000
+EXPOSE 5000
 
 # Command to run the application
-CMD ["flask", "run", "--host=0.0.0.0 --port=5000"]
+CMD ["python", "Controller/ParentControlerInterface.py", "--host=0.0.0.0 --port=5000"]
