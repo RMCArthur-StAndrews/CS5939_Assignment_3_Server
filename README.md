@@ -30,9 +30,9 @@ To run the service on your local machine without containers, you should *ensure 
     pip install -r requirements.txt
  When all dependencies are present, you can then look to run the API. You can do this by selecting the "Main.py" file and running it via your IDE's run tool, if available. Alternatively, you can run the following script in a terminal running your Python environment. 
 
-    python Controllers/Main.py
+    python Controllers/ParentControllerInterface.py
 
-From here the service should run without any issues.
+From here, the service should run without any issues.
     
 
 ## Running on Containers
