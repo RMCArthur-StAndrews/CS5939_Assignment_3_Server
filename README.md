@@ -38,6 +38,7 @@ From here, the service should run without any issues.
 ## Running on Containers
 If running the service on a container, you will not need to consider which ports are available as it is expected that the container should have those ports available. To run on a container, ensure that your machine(s) have Docker / Podman installed to facilitate the containerisation environment. 
 ### Running the container
+Note that the container scripts are written to support the deployment to the two VM's used for the assignment. This project is permitted to use CS5939-vm02.st-andrews.ac.uk for deployment. Please do not deploy it to any other services; otherwise, it will cause unexpected errors.
 The components of this system can be run on containers. As part of this assignment, we provide scripts in automating that process somewhat. All that is required of you is to open a terminal, redirect to wherever this project is being stored, and then run the following script:
 
     ./run.sh
