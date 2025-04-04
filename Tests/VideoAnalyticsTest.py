@@ -5,7 +5,7 @@ from Utils.VideoAnalyticsModelService import VideoAnalyticsModelService
 
 class TestVideoAnalyticsModelService(unittest.TestCase):
     def setUp(self):
-        self.model_service = VideoAnalyticsModelService(model_path='yolo11n.pt')
+        self.model_service = VideoAnalyticsModelService(model_path='../yolo11n.pt')
         self.color_map = {}
         self.thickness = 1
 

@@ -3,10 +3,16 @@ import axios from 'axios';
 import { Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+/**
+ * Establishes base URL for API requests.
+ */
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BASE_API_PATH,
+  baseURL: "http://localhost:5000",
 });
 
+/**
+ * Template for inbound monitoring data
+ */
 interface MonitoringData {
   time_of_occurence: string;
   execution_hash: string;
@@ -18,9 +24,15 @@ interface MonitoringData {
   };
 }
 
+/**
+ * Component to display service logs in a table format.
+ */
 const ServiceLogs: React.FC = () => {
   const [logs, setLogs] = useState<MonitoringData[]>([]);
 
+    /**
+     * Fetch data from the API set the current data
+     * */
   useEffect(() => {
     api.get('/cloud-data-monitoring')
       .then(response => {
@@ -45,6 +57,9 @@ const ServiceLogs: React.FC = () => {
       });
   }, []);
 
+    /**
+     * Render the service logs table.
+     */
   return (
     <div>
       <h2>Service Logs</h2>

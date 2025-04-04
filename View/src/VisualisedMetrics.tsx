@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Plotly from 'plotly.js-dist';
 
+/**
+ * Template for inbound monitoring data
+ */
 interface CloudMetric {
   time_of_occurence: string;
   execution_hash: string;
@@ -13,10 +16,16 @@ interface CloudMetric {
   };
 }
 
+/**
+ * Establishes base URL for API requests.
+ */
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BASE_API_PATH,
+  baseURL: "http://localhost:5000",
 });
 
+/**
+ * Interface for grouped data structure.
+ */
 interface GroupedData {
   [key: string]: {
     x: string[];
@@ -26,10 +35,16 @@ interface GroupedData {
   };
 }
 
+/**
+ * Component to visualize metrics using Plotly.js.
+ */
 const VisualisedMetrics: React.FC = () => {
   const [metrics, setMetrics] = useState<CloudMetric[]>([]);
   const [selectedGraph, setSelectedGraph] = useState<string>('memory');
 
+  /**
+   * Fetch data from the API and set the current data
+   */
   useEffect(() => {
     api.get('/cloud-data-monitoring')
       .then(response => {
@@ -54,6 +69,9 @@ const VisualisedMetrics: React.FC = () => {
       });
   }, []);
 
+    /**
+     * Render the graph plot using the given table data options
+     * */
   useEffect(() => {
     if (metrics.length > 0) {
       let data;
@@ -89,6 +107,9 @@ const VisualisedMetrics: React.FC = () => {
     }
   }, [metrics, selectedGraph]);
 
+  /**
+   * Render the visualised metrics component.
+   */
   return (
     <div>
       <h2>Visualised Metrics</h2>

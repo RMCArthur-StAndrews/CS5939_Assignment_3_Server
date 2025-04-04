@@ -8,7 +8,14 @@ from Utils.MonitoringRecords import MonitorRecordObject
 
 
 class VideoAnalyticsModelService:
+    """
+    Class explicitly handles object detection using the provided model
+    """
     def __init__(self, model_path='yolo11n.pt'):
+        """
+        Constructor for the VideoAnalyticsModelService class
+        :param model_path: The model to use for object detection
+        """
         self.color_map = {}
         self.thickness = 1
         self.model = YOLO(model_path)  # Load the YOLO model
@@ -16,7 +23,11 @@ class VideoAnalyticsModelService:
         self.cloud_monitor = CloudMonitoringUtils()
 
     def analyse_frame(self, frame: bytes) -> dict:
-
+        """
+        Method to analyse a single frame for object detection
+        :param frame: The frame image to be analysed
+        :return: List of detections as JSON
+        """
         start_time = time.time()
         start_memory = self.process.memory_info().rss
         np_frame = np.frombuffer(frame, np.uint8)

@@ -6,11 +6,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onSelect }) => {
+    /**
+     * Render the navigation bar with links to different sections.
+     */
   return (
     <div className="navbar">
       <a href="#" onClick={() => onSelect('serviceLogs')}>Service Logs</a>
       <a href="#" onClick={() => onSelect('visualisedMetrics')}>Visualised Metrics</a>
-      <a href="#" onClick={() => onSelect('currentDevices')}>Current Connected Devices</a>
     </div>
   );
 };
