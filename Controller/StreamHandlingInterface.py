@@ -23,7 +23,6 @@ class StreamHandlingInterface(Resource):
         self.edge_to_cloud_decrypt = Fernet(self.edge_key)
         self.cloud_to_edge_encrypt = Fernet(self.cloud_key)
 
-
     def post(self):
         """
         Post Request handles frame object detection and returns the findings of said detection as a json object
@@ -31,11 +30,16 @@ class StreamHandlingInterface(Resource):
         """
         if 'image' not in request.files:
             return {"message": "No image part in the request"}, 400
-        image = request.files['image']
-        if image.filename == '':
-            return {"message": "No selected image"}, 400
-        image = self.edge_to_cloud_decrypt.decrypt(image.read())
-        result = self.model_service.analyse_frame(image)
-        json_data= json.dumps(result, indent=4).encode('utf-8')
+        images = request.files.getlist('image')
+
+        results = []
+        for image in images:
+            if image.filename == '':
+                return {"message": "No selected image"}, 400
+            image_data = self.edge_to_cloud_decrypt.decrypt(image.read())
+            result = self.model_service.analyse_frame(image_data)
+            results.append(result)
+
+        json_data = json.dumps(results, indent=4).encode('utf-8')
         encrypted_data = self.cloud_to_edge_encrypt.encrypt(json_data)
         return jsonify({"data": encrypted_data.decode('utf-8')})
