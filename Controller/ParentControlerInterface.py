@@ -1,3 +1,6 @@
+import logging
+import os
+
 from flask import Flask, request, g, abort
 from flask_restful import Api
 import time
@@ -12,8 +15,18 @@ from flask_cors import CORS
 """
 Run config setup and initialisation of API 
 """
+
+state = os.getenv('state', 'dev')
 # List of allowed IP addresses
-EDGE_IP = ['', '127.0.0.1'] # <- DEV ONLY ['10.0.0.1'] #<- Prod]
+if state == 'prod':
+    logging.info('Running in Production mode')
+    print('Running in Production mode')
+    EDGE_IP = ['10.0.0.1']
+else:
+    logging.info('Running in Development mode')
+    print('Running in Development mode')
+    EDGE_IP = ['', '127.0.0.1']
+
 CLOUD_IP = ['127.0.0.1']# For DEV and PROD
 
 cloud_monitor = CloudMonitoringUtils()

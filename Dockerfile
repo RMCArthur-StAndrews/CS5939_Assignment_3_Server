@@ -1,7 +1,7 @@
 FROM python:slim
 
 ENV DEBIAN_FRONTEND=noninteractive
-
+ENV state=dev
 # Install necessary packages and clean up
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
