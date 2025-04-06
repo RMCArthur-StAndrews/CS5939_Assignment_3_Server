@@ -17,7 +17,7 @@ if [ $? -eq 0 ]; then
   echo "API Docker image built successfully."
 
   # Run the API Docker container
-  docker run -d -p 5000:5000 api:latest
+  docker run -e state=prod -d -p 5000:5000 api:latest
 
   if [ $? -eq 0 ]; then
     echo "API Docker container started successfully."
@@ -34,7 +34,6 @@ if [ $? -eq 0 ]; then
   # Check if the Webapp build was successful
   if [ $? -eq 0 ]; then
     echo "Webapp Docker image built successfully."
-
     # Run the Webapp Docker container
     docker run -d -p 3000:3000 webapp:latest
 
