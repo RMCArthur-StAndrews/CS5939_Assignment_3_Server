@@ -49,4 +49,4 @@ ENV PYTHONPATH="/usr/src/app"
 EXPOSE 5000
 
 # Command to run the application
-CMD ["python", "Controller/ParentControlerInterface.py", "--host=0.0.0.0 --port=5000"]
+CMD ["python", "Controller/ParentControllerInterface.py", "--host=0.0.0.0 --port=5000"]
