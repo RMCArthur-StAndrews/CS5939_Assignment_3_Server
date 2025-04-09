@@ -55,6 +55,7 @@ If this is your first time running it, you might find you get a permission issue
 ### Loading the webapp into your local machine (when deployed to VM's) 
 To access the web app for the server end of the service. You will first be required to carry out some SSH tunneling to achieve this. You can do this via the following command in the terminal: 
 <Insert code here> 
+You may be required to enter your VM's password to gain access. 
 Please do not change the port numberings for this as they ensure all services can run at the same time on your device (via tunneling)
 Once that is completed, you can then view the Monitoring dashboard webpage via the link below
 <Insert Link>
