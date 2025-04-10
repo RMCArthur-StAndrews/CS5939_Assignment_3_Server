@@ -55,9 +55,12 @@ If this is your first time running it, you might find you get a permission issue
 ### Loading the webapp into your local machine (when deployed to VM's) 
 To access the web app for the server end of the service. You will first be required to carry out some SSH tunneling to achieve this. You can do this via the following command in the terminal: 
 
-    ssh -L <insert your routed to port>:127.0.0.1:3000 <username>-vm02.st-andrews.ac.uk -N -v -v -v
+    ssh -L 8000:127.0.0.1:3000 <username>-vm02.st-andrews.ac.uk -N -v -v -v
 You may be required to enter your VM's password to gain access. 
-Please do not change the port numberings for this as they ensure all services can run at the same time on your device (via tunneling)
+Next you must ensure that the cloud API is able to be exposed by the following SSH tunnel:  
+
+    ssh -L 5000:127.0.0.1:5000 <username>-vm02.st-andrews.ac.uk -N -v -v -v
+Please do not change the port numberings that have been providedfor this as they ensure all services can run at the same time on your device (via tunneling)
 Once that is completed, you can then view the Monitoring dashboard webpage via the link below
 
-    https:\\localhost:<insert your routed to port>
+    https:\\localhost:8000
