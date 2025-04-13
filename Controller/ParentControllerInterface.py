@@ -17,7 +17,7 @@ Run config setup and initialisation of API
 """
 
 state = os.getenv('state', 'dev')
-# List of allowed IP addresses
+
 if state == 'prod':
     logging.info('Running in Production mode')
     print('Running in Production mode')
@@ -31,10 +31,10 @@ CLOUD_IP = ['127.0.0.1']# For DEV and PROD
 
 cloud_monitor = CloudMonitoringUtils()
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 api = Api(app)
 
-# Register specific interfaces
+
 api.add_resource(CloudDataMonitoringInterface, '/cloud-data-monitoring')
 api.add_resource(StreamHandlingInterface, '/stream-handling')
 api.add_resource(GeneralUtilsInterface, '/utils')
@@ -76,14 +76,13 @@ def after_request(response):
 
     end_time = time.time()
     end_memory = cloud_monitor.process.memory_info().rss
-    current, peak = tracemalloc.get_traced_memory()
+    _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
     execution_time = end_time - g.start_time
-    memory_usage = (end_memory - g.start_memory) / (1024 * 1024)  # Convert to MB
-    peak_memory_usage = peak / (1024 * 1024)  # Convert to MB
+    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)
+    peak_memory_usage = peak / (1024 * 1024)
 
-    # Create a monitoring record object
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,
@@ -92,7 +91,7 @@ def after_request(response):
         processing_info={"peak_memory_usage": peak_memory_usage}
     )
 
-    # Write the monitoring data using CloudMonitoringUtils
+
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
 
     return response
