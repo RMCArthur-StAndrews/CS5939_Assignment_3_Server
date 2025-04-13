@@ -26,7 +26,7 @@ class MonitoringRecords:
         except FileNotFoundError:
             df = pd.DataFrame()
             df.to_json(json_file, orient='records', indent=4)
-        except PermissionError: # Makes sure that we don't read the file while it's being written to
+        except PermissionError:
             time.sleep(1)
             return self.read_in_from_json(json_file)
         return df
@@ -45,7 +45,7 @@ class MonitoringRecords:
             combined_data = pd.concat([existing_data, new_data], ignore_index=True)
         except FileNotFoundError:
             combined_data = pd.DataFrame([obj.__dict__ for obj in data])
-        except PermissionError: # Makes sure that we don't read the file while it's being read to
+        except PermissionError:
             time.sleep(1)
             return self.write_out_to_json(json_file, data)
         combined_data.to_json(json_file, orient='records', indent=4)

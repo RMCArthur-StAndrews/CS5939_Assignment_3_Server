@@ -18,7 +18,7 @@ class VideoAnalyticsModelService:
         """
         self.color_map = {}
         self.thickness = 1
-        self.model = YOLO(model_path)  # Load the YOLO model
+        self.model = YOLO(model_path)
         self.process = psutil.Process()
         self.cloud_monitor = CloudMonitoringUtils()
 
@@ -33,8 +33,7 @@ class VideoAnalyticsModelService:
         np_frame = np.frombuffer(frame, np.uint8)
         img = cv2.imdecode(np_frame, cv2.IMREAD_COLOR)
 
-        results = self.model(img)  # Perform object detection
-
+        results = self.model(img)
 
         end_time = time.time()
         end_memory = self.process.memory_info().rss
@@ -51,8 +50,6 @@ class VideoAnalyticsModelService:
                     'confidence': float(box.conf),
                     'bbox': box.xyxy.tolist()
                 })
-
-
         record = MonitorRecordObject(
             time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
             data='frame_analysis',
@@ -60,7 +57,5 @@ class VideoAnalyticsModelService:
             memory_usage=memory_usage,
             processing_info={"peak_memory_usage": memory_usage}
         )
-
-        # Write the monitoring data using CloudMonitoringUtils
         self.cloud_monitor.write_monitoring_data("monitoring.json", [record])
         return {'detections': detections}

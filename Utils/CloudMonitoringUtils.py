@@ -54,7 +54,6 @@ class CloudMonitoringUtils:
         if(os.getenv("OPERATION_ENV") == "edge"):
             data = self.get_monitoring_data("monitoring.json").to_json()
             try:
-                # Attempt to dump data to cloud
                 response = 400
                 if(response == 200):
                     monitoring_records = MonitoringRecords()
