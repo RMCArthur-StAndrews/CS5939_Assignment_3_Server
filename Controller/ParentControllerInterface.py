@@ -63,8 +63,8 @@ def before_request():
     g.start_memory = cloud_monitor.process.memory_info().rss
     tracemalloc.start()
 
-@app.after_request
-def after_request(response):
+@app.teardown_request
+def teardown_request(response):
     """
     This method is called after each request to the Flask application.
     It performs the end of performance monitoring and writes the data to a JSON file.
