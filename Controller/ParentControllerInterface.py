@@ -1,6 +1,6 @@
 import logging
 import os
-import psutil
+
 from flask import Flask, request, g, abort
 from flask_restful import Api
 import time
@@ -49,7 +49,8 @@ End of config setup and initialisation of API
 def before_request():
     """
     This method is called before each call request to the Flask application.
-    Performs (start of) monitoring and restrictions by IP address of receiver.
+    Performs (start of ) monitoring and restrictions by IP address of receiver.
+
     """
     if request.path != '/utils':
         if request.path == '/stream-handling' and request.remote_addr not in EDGE_IP:
@@ -59,8 +60,8 @@ def before_request():
             abort(403)
 
     g.start_time = time.time()
-    process = psutil.Process()  # Explicitly get the current process
-    g.start_memory = process.memory_info().rss  # Start memory usage in bytes
+    g.start_memory = cloud_monitor.process.memory_info().rss
+    tracemalloc.start()
 
 @app.after_request
 def after_request(response):
@@ -74,25 +75,27 @@ def after_request(response):
         return response
 
     end_time = time.time()
-    process = psutil.Process()  # Explicitly get the current process
-    end_memory = process.memory_info().rss  # End memory usage in bytes
-    peak_memory = process.memory_info().vms  # Peak memory usage (virtual memory size)
+    end_memory = cloud_monitor.process.memory_info().rss
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
 
     execution_time = end_time - g.start_time
-    memory_usage = max(0, abs(end_memory - g.start_memory)) / (1024 * 1024)  # Ensure non-negative memory usage
-    peak_memory_usage = peak_memory / (1024 * 1024)  # Convert peak memory usage to MB
+    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)
+    peak_memory_usage = peak / (1024 * 1024)
 
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,
         execution_time=execution_time,
-        memory_usage=memory_usage,
-        processing_info={"peak_memory_usage": peak_memory_usage}  # Record peak memory usage
+        memory_usage=abs(memory_usage),
+        processing_info={"peak_memory_usage": peak_memory_usage}
     )
+
 
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
 
     return response
+
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', debug=True, use_reloader=False)
