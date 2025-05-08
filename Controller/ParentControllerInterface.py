@@ -82,7 +82,8 @@ def teardown_request(response):
 
     execution_time = end_time - g.start_time
     memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)
-    peak_memory_usage = peak / (1024 * 1024)
+    memory_usage = max(0, abs(memory_usage))
+    peak_memory_usage = max(0, peak / (1024 * 1024))
 
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
