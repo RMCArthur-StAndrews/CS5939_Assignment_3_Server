@@ -1,6 +1,6 @@
 import logging
 import os
-
+import psutil
 from flask import Flask, request, g, abort
 from flask_restful import Api
 import time
@@ -44,6 +44,7 @@ api.add_resource(GeneralUtilsInterface, '/utils')
 """
 End of config setup and initialisation of API
 """
+
 @app.before_request
 def before_request():
     """
@@ -58,8 +59,8 @@ def before_request():
             abort(403)
 
     g.start_time = time.time()
-    g.start_memory = cloud_monitor.process.memory_info().rss  # Start memory usage in bytes
-
+    process = psutil.Process()  # Explicitly get the current process
+    g.start_memory = process.memory_info().rss  # Start memory usage in bytes
 
 @app.after_request
 def after_request(response):
@@ -73,12 +74,11 @@ def after_request(response):
         return response
 
     end_time = time.time()
-    end_memory = cloud_monitor.process.memory_info().rss  # End memory usage in bytes
-    if end_memory == 0:
-        end_memory = g.start_memory
+    process = psutil.Process()  # Explicitly get the current process
+    end_memory = process.memory_info().rss  # End memory usage in bytes
 
     execution_time = end_time - g.start_time
-    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)  # Convert to MB
+    memory_usage = max(0, abs(end_memory - g.start_memory)) / (1024 * 1024)  # Ensure non-negative memory usage
 
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
@@ -91,7 +91,6 @@ def after_request(response):
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
 
     return response
-
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', debug=True, use_reloader=False)
