@@ -71,7 +71,7 @@ def teardown_request(response):
     :param response: Carrier of the response data
     :return: The response data to be sent out
     """
-    if response.status_code != None:
+    if response.status_code is not None:
         return response
 
     if response.status_code == 403:
