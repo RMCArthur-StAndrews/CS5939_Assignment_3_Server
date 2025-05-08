@@ -1,4 +1,6 @@
 import time
+import tracemalloc
+
 import psutil
 import cv2
 import numpy as np
@@ -30,17 +32,18 @@ class VideoAnalyticsModelService:
         """
         start_time = time.time()
         start_memory = self.process.memory_info().rss
+        tracemalloc.start()
         np_frame = np.frombuffer(frame, np.uint8)
         img = cv2.imdecode(np_frame, cv2.IMREAD_COLOR)
 
         results = self.model(img)
-
+        _, peak = tracemalloc.get_traced_memory()
         end_time = time.time()
         end_memory = self.process.memory_info().rss
 
         execution_time = end_time - start_time
         memory_usage = (end_memory - start_memory) / (1024 * 1024)  # Convert to MB
-
+        peak_memory_usage = peak / (1024 * 1024)
         detections = []
         for result in results:
             for box in result.boxes:
@@ -54,8 +57,8 @@ class VideoAnalyticsModelService:
             time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
             data='frame_analysis',
             execution_time=execution_time,
-            memory_usage=memory_usage,
-            processing_info={"peak_memory_usage": memory_usage}
+            memory_usage=abs(memory_usage),
+            processing_info={"peak_memory_usage": peak_memory_usage}
         )
         self.cloud_monitor.write_monitoring_data("monitoring.json", [record])
         return {'detections': detections}
