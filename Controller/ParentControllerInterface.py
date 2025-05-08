@@ -44,13 +44,11 @@ api.add_resource(GeneralUtilsInterface, '/utils')
 """
 End of config setup and initialisation of API
 """
-
 @app.before_request
 def before_request():
     """
     This method is called before each call request to the Flask application.
-    Performs (start of ) monitoring and restrictions by IP address of receiver.
-
+    Performs (start of) monitoring and restrictions by IP address of receiver.
     """
     if request.path != '/utils':
         if request.path == '/stream-handling' and request.remote_addr not in EDGE_IP:
@@ -60,8 +58,8 @@ def before_request():
             abort(403)
 
     g.start_time = time.time()
-    g.start_memory = cloud_monitor.process.memory_info().rss
-    tracemalloc.start()
+    g.start_memory = cloud_monitor.process.memory_info().rss  # Start memory usage in bytes
+
 
 @app.after_request
 def after_request(response):
@@ -75,24 +73,20 @@ def after_request(response):
         return response
 
     end_time = time.time()
-    end_memory = cloud_monitor.process.memory_info().rss
+    end_memory = cloud_monitor.process.memory_info().rss  # End memory usage in bytes
     if end_memory == 0:
         end_memory = g.start_memory
-    _, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
 
     execution_time = end_time - g.start_time
-    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)
-    peak_memory_usage = peak / (1024 * 1024)
+    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)  # Convert to MB
 
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,
         execution_time=execution_time,
         memory_usage=memory_usage,
-        processing_info={"peak_memory_usage": peak_memory_usage}
+        processing_info={"peak_memory_usage": memory_usage}  # Peak memory usage is the same as memory usage here
     )
-
 
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
 
