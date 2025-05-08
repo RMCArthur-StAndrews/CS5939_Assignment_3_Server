@@ -75,7 +75,9 @@ def after_request(response):
         return response
 
     end_time = time.time()
-    end_memory = cloud_monitor.process.memory_info().vms
+    end_memory = cloud_monitor.process.memory_info().rss
+    if end_memory == 0:
+        end_memory = g.start_memory
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
