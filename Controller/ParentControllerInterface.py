@@ -71,11 +71,9 @@ def teardown_request(response):
     :param response: Carrier of the response data
     :return: The response data to be sent out
     """
-    if response is None:
-        return response
-
-    if response.status_code == 403:
-        return response
+    if response is not None:
+        if response.status_code == 403:
+            return response
 
     end_time = time.time()
     end_memory = cloud_monitor.process.memory_info().rss
