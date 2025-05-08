@@ -76,16 +76,18 @@ def after_request(response):
     end_time = time.time()
     process = psutil.Process()  # Explicitly get the current process
     end_memory = process.memory_info().rss  # End memory usage in bytes
+    peak_memory = process.memory_info().vms  # Peak memory usage (virtual memory size)
 
     execution_time = end_time - g.start_time
     memory_usage = max(0, abs(end_memory - g.start_memory)) / (1024 * 1024)  # Ensure non-negative memory usage
+    peak_memory_usage = peak_memory / (1024 * 1024)  # Convert peak memory usage to MB
 
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,
         execution_time=execution_time,
         memory_usage=memory_usage,
-        processing_info={"peak_memory_usage": memory_usage}  # Peak memory usage is the same as memory usage here
+        processing_info={"peak_memory_usage": peak_memory_usage}  # Record peak memory usage
     )
 
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
