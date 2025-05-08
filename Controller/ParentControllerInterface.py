@@ -81,8 +81,8 @@ def teardown_request(response):
     tracemalloc.stop()
 
     execution_time = end_time - g.start_time
-    memory_usage = abs(end_memory - g.start_memory) / (1024 * 1024)
-    memory_usage = max(0, abs(memory_usage))
+    memory_usage = end_memory - g.start_memory / (1024 * 1024)
+
     peak_memory_usage = max(0, peak / (1024 * 1024))
 
     record = MonitorRecordObject(
@@ -90,7 +90,7 @@ def teardown_request(response):
         data=request.path,
         execution_time=execution_time,
         memory_usage=abs(memory_usage),
-        processing_info={"peak_memory_usage": peak_memory_usage}
+        processing_info={"peak_memory_usage": abs(peak_memory_usage)}
     )
 
 
