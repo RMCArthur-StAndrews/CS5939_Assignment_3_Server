@@ -13,6 +13,10 @@ interface CloudMetric {
   memory_usage: number;
   processing_info: {
     peak_memory_usage: number;
+    cpu_usage: {
+      user_time: number;
+      system_time: number;
+    };
   };
 }
 
@@ -69,9 +73,9 @@ const VisualisedMetrics: React.FC = () => {
       });
   }, []);
 
-    /**
-     * Render the graph plot using the given table data options
-     * */
+  /**
+   * Render the graph plot using the given table data options
+   */
   useEffect(() => {
     if (metrics.length > 0) {
       let data;
@@ -86,19 +90,25 @@ const VisualisedMetrics: React.FC = () => {
           return acc;
         }, {});
         data = Object.values(groupedData);
-      } else if (selectedGraph === 'task') {
+      } else if (selectedGraph === 'user_cpu') {
         const groupedData = metrics.reduce<GroupedData>((acc, metric) => {
           const date = metric.time_of_occurence.split(' ')[0];
           if (!acc[date]) {
             acc[date] = { x: [], y: [], type: 'bar', name: date };
           }
-          const taskIndex = acc[date].x.indexOf(metric.data);
-          if (taskIndex === -1) {
-            acc[date].x.push(metric.data);
-            acc[date].y.push(1);
-          } else {
-            acc[date].y[taskIndex] += 1;
+          acc[date].x.push(metric.time_of_occurence);
+          acc[date].y.push(metric.processing_info.cpu_usage.user_time);
+          return acc;
+        }, {});
+        data = Object.values(groupedData);
+      } else if (selectedGraph === 'system_cpu') {
+        const groupedData = metrics.reduce<GroupedData>((acc, metric) => {
+          const date = metric.time_of_occurence.split(' ')[0];
+          if (!acc[date]) {
+            acc[date] = { x: [], y: [], type: 'bar', name: date };
           }
+          acc[date].x.push(metric.time_of_occurence);
+          acc[date].y.push(metric.processing_info.cpu_usage.system_time);
           return acc;
         }, {});
         data = Object.values(groupedData);
@@ -115,7 +125,8 @@ const VisualisedMetrics: React.FC = () => {
       <h2>Visualised Metrics</h2>
       <select onChange={(e) => setSelectedGraph(e.target.value)} value={selectedGraph}>
         <option value="memory">Memory Consumption</option>
-        <option value="task">Task Count</option>
+        <option value="user_cpu">User CPU Time</option>
+        <option value="system_cpu">System CPU Time</option>
       </select>
       <div id="plotlyGraph"></div>
     </div>

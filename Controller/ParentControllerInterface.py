@@ -48,34 +48,20 @@ End of config setup and initialisation of API
 @app.before_request
 def before_request():
     """
-    This method is called before each call request to the Flask application.
-    Performs (start of ) monitoring and restrictions by IP address of receiver.
-
+    Record CPU and memory usage at the start of the request lifecycle.
     """
-    if request.path != '/utils':
-        if request.path == '/stream-handling' and request.remote_addr not in EDGE_IP:
-            abort(403)
-
-        if request.path == '/cloud-monitoring' and request.remote_addr not in CLOUD_IP:
-            abort(403)
-
     g.start_time = time.time()
     g.start_memory = cloud_monitor.process.memory_info().rss
+    g.start_cpu_times = cloud_monitor.process.cpu_times()  # Record CPU times
     tracemalloc.start()
 
 @app.teardown_request
 def teardown_request(response):
+    """
+    Record CPU and memory usage at the end of the request lifecycle.
+    """
     end_memory = cloud_monitor.process.memory_info().rss
-    """
-    This method is called after each request to the Flask application.
-    It performs the end of performance monitoring and writes the data to a JSON file.
-    :param response: Carrier of the response data
-    :return: The response data to be sent out
-    """
-    if response is not None:
-        if response.status_code == 403:
-            return response
-
+    end_cpu_times = cloud_monitor.process.cpu_times()  # Record CPU times again
     end_time = time.time()
 
     _, peak = tracemalloc.get_traced_memory()
@@ -83,18 +69,23 @@ def teardown_request(response):
 
     execution_time = end_time - g.start_time
     memory_usage = (end_memory - g.start_memory) / (1024 * 1024)
+    peak_memory_usage = peak / (1024 * 1024)
 
-    peak_memory_usage =  peak / (1024 * 1024)
-    print(memory_usage)  # Convert to MB
-    print(abs(memory_usage))
+    # Calculate CPU usage
+    cpu_usage = {
+        "user_time": end_cpu_times.user - g.start_cpu_times.user,
+        "system_time": end_cpu_times.system - g.start_cpu_times.system
+    }
+
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,
         execution_time=execution_time,
-        memory_usage=abs(memory_usage),
-        processing_info={"peak_memory_usage": abs(peak_memory_usage)}
+        memory_usage=abs(peak_memory_usage),
+        processing_info={
+            "cpu_usage": cpu_usage
+        }
     )
-
 
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
 

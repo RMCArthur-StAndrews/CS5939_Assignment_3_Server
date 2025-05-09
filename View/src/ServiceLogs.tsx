@@ -20,7 +20,10 @@ interface MonitoringData {
   execution_time: number;
   memory_usage: number;
   processing_info: {
-    peak_memory_usage: number;
+    cpu_usage: {
+      user_time: number;
+      system_time: number;
+    };
   };
 }
 
@@ -64,29 +67,31 @@ const ServiceLogs: React.FC = () => {
     <div>
       <h2>Service Logs</h2>
       <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Execution Hash</th>
-            <th>Data</th>
-            <th>Execution Time</th>
-            <th>Memory Usage</th>
-            <th>Peak Memory Usage</th>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Execution Hash</th>
+          <th>Data</th>
+          <th>Execution Time</th>
+          <th>Memory Usage</th>
+          <th>User CPU Time</th>
+          <th>System CPU Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {logs.map((log, index) => (
+          <tr key={index}>
+            <td>{log.time_of_occurence}</td>
+            <td>{log.execution_hash}</td>
+            <td>{log.data}</td>
+            <td>{log.execution_time}</td>
+            <td>{log.memory_usage}</td>
+            <td>{log.processing_info.cpu_usage.user_time}</td>
+            <td>{log.processing_info.cpu_usage.system_time}</td>
           </tr>
-        </thead>
-        <tbody>
-          {logs.map((log, index) => (
-            <tr key={index}>
-              <td>{log.time_of_occurence}</td>
-              <td>{log.execution_hash}</td>
-              <td>{log.data}</td>
-              <td>{log.execution_time}</td>
-              <td>{log.memory_usage}</td>
-              <td>{log.processing_info.peak_memory_usage}</td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+        ))}
+      </tbody>
+    </Table>
     </div>
   );
 };

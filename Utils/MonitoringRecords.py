@@ -38,6 +38,7 @@ class MonitoringRecords:
         
         :param json_file: Path to the JSON file.
         :param data: List of objects to write to the JSON file.
+        :return : if an error occurs, return data written to a file
         """
         try:
             existing_data = self.read_in_from_json(json_file)
