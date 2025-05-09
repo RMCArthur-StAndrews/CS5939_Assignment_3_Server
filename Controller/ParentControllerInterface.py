@@ -55,8 +55,8 @@ def before_request():
     g.start_cpu_times = cloud_monitor.process.cpu_times()  # Record CPU times
     tracemalloc.start()
 
-@app.teardown_request
-def teardown_request(response):
+@app.after_request
+def after_request(response):
     """
     Record CPU and memory usage at the end of the request lifecycle.
     """
@@ -88,8 +88,7 @@ def teardown_request(response):
     )
 
     cloud_monitor.write_monitoring_data("monitoring.json", [record])
-
-    return response
+    return response;
 
 
 if __name__ == '__main__':
