@@ -114,9 +114,9 @@ const ServiceLogs: React.FC = () => {
             <th>Execution Hash</th>
             <th>Data</th>
             <th>Execution Time</th>
-            <th>Memory Usage</th>
-            <th>User CPU Time</th>
-            <th>System CPU Time</th>
+            <th>Memory Usage (Mbs)</th>
+            <th>User CPU Time (0.00 Seconds)</th>
+            <th>System CPU Time (0.00 Seconds)</th>
           </tr>
         </thead>
         <tbody>
