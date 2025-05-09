@@ -68,7 +68,7 @@ class VideoAnalyticsModelService:
             time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
             data='frame_analysis',
             execution_time=execution_time,
-            memory_usage=abs(memory_usage),
+            memory_usage=abs(peak_memory_usage),
             processing_info={
                 "cpu_usage": cpu_usage
             }
