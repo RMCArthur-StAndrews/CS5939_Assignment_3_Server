@@ -65,6 +65,7 @@ def before_request():
 
 @app.teardown_request
 def teardown_request(response):
+    end_memory = cloud_monitor.process.memory_info().rss
     """
     This method is called after each request to the Flask application.
     It performs the end of performance monitoring and writes the data to a JSON file.
@@ -76,7 +77,7 @@ def teardown_request(response):
             return response
 
     end_time = time.time()
-    end_memory = cloud_monitor.process.memory_info().rss
+
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
 
@@ -84,7 +85,8 @@ def teardown_request(response):
     memory_usage = (end_memory - g.start_memory) / (1024 * 1024)
 
     peak_memory_usage =  peak / (1024 * 1024)
-
+    print(memory_usage)  # Convert to MB
+    print(abs(memory_usage))
     record = MonitorRecordObject(
         time=time.strftime("%d/%b/%Y %H:%M:%S", time.gmtime()),
         data=request.path,

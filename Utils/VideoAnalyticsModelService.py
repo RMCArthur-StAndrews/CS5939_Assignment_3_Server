@@ -42,7 +42,9 @@ class VideoAnalyticsModelService:
         end_memory = self.process.memory_info().rss
 
         execution_time = end_time - start_time
-        memory_usage = (end_memory - start_memory) / (1024 * 1024)  # Convert to MB
+        memory_usage = (end_memory - start_memory) / (1024 * 1024)
+        print(memory_usage)# Convert to MB
+        print(abs(memory_usage))
         peak_memory_usage = peak / (1024 * 1024)
         detections = []
         for result in results:
